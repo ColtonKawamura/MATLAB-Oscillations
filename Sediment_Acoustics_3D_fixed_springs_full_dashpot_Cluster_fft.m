@@ -16,15 +16,15 @@ function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, 
 K = 100;
 M = 1
 Bv = 1;
-w_D = 1.28;
-Nt =300;
+w_D = 0.28;
+Nt =1000;
 N = 5000;
 P=0.05;
 W = 5;
 seed = 5;
 
-% cutoff_amplitude = 2.6E-5
-cutoff_amplitude = 0
+ cutoff_amplitude = 2.6E-5
+% cutoff_amplitude = 0
 
 % close all
 K_in = K;
@@ -240,6 +240,7 @@ dimensionless_p=P;
 driving_amplitude=A;
 
 % Initialize output vectors
+cutoff_amplitude = 0
 initial_position_vector = [];
 amplitude_vector = [];
 phase_vector = [];
@@ -250,8 +251,8 @@ for nn = isort(1:iskip:end) # Sorts them by increments of iskip...for iskip>1, s
     if(~left_wall_list(nn)) # Executes the following block only if the particle indexed by nn is not on the left wall.
         x_temp = x_all(nn,:); # extracts and stores the time-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
        
-        if length(unique(x_temp))>100 # Checks if x_temp has more than 100 unique values AKA only process data that moves
-            % fprintf('*** Doing fft fit  ***\n');
+        if length(unique(x_temp))>10 # Checks if x_temp has more than 100 unique values AKA only process data that moves
+            %  fprintf('*** Doing fft fit  ***\n');
             % FFT "engine"
             probe_data = x_temp;
             average_dt = mean(diff(time));
@@ -276,15 +277,15 @@ for nn = isort(1:iskip:end) # Sorts them by increments of iskip...for iskip>1, s
             [~, idx_desired] = min(abs(freq_vector - desired_frequency));
 
             % Check if there is a peak around the desired frequency and amplitude is greater than 
-                if idx_desired > 1 && idx_desired < numel(freq_vector) && amplitude > cutoff_amplitude
-                    % fprintf('*** Checking for Slope  ***\n');
+                if idx_desired > 1 && idx_desired < numel(freq_vector) 
+                    %  fprintf('*** Checking for Slope  ***\n');
                     % Calculate the sign of the slope before and after the desired frequency
                     sign_slope_before = sign(normalized_fft_data(idx_desired) - normalized_fft_data(idx_desired - 1));
                     sign_slope_after = sign(normalized_fft_data(idx_desired + 1) - normalized_fft_data(idx_desired));
                     
                     % Check if the signs of the slopes are different and if the values on both sides are greater than the value at the desired frequency
                     if sign_slope_before ~= sign_slope_after && normalized_fft_data(idx_desired - 1) < normalized_fft_data(idx_desired) && normalized_fft_data(idx_desired + 1) < normalized_fft_data(idx_desired)
-                         fprintf('Peak found around the driving frequency. Storing data\n');
+                        %  fprintf('Peak found around the driving frequency. Storing data\n');
 
                         amplitude_vector = [amplitude_vector, amplitude]; % Pulls amplitude from fft calculation
                         initial_position_vector = [initial_position_vector, probe_data(1)];
@@ -301,6 +302,23 @@ for nn = isort(1:iskip:end) # Sorts them by increments of iskip...for iskip>1, s
     end
 
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Damping Warning for Data Anaylsis 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Calculate the damping ratio
+zeta = Bv / (2 * sqrt(M * K)); % Damping ratio formula
+
+%% Check for overdamping
+if zeta > 1
+    warning('The system is overdamped! Damping ratio (zeta) is %f, which is greater than 1.', zeta);
+elseif zeta == 1
+    fprintf('The system is critically damped.\n');
+else
+    fprintf('The system is underdamped.\n');
+end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Semi log plot (because exponential)
