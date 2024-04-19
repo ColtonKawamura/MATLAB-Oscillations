@@ -15,16 +15,16 @@ function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, 
 % % Manual variables for troubleshooting
 K = 100;
 M = 1
-Bv = 1;
-w_D = 0.28;
+Bv = 8;
+w_D = 1.28;
 Nt =1000;
 N = 5000;
 P=0.05;
 W = 5;
 seed = 5;
 
- cutoff_amplitude = 2.6E-5
-% cutoff_amplitude = 0
+%  cutoff_amplitude = 2.6E-5
+cutoff_amplitude = 0
 
 % close all
 K_in = K;
@@ -240,7 +240,6 @@ dimensionless_p=P;
 driving_amplitude=A;
 
 % Initialize output vectors
-cutoff_amplitude = 0
 initial_position_vector = [];
 amplitude_vector = [];
 phase_vector = [];
@@ -253,19 +252,34 @@ for nn = isort(1:iskip:end) # Sorts them by increments of iskip...for iskip>1, s
        
         if length(unique(x_temp))>10 # Checks if x_temp has more than 100 unique values AKA only process data that moves
             %  fprintf('*** Doing fft fit  ***\n');
-            % FFT "engine"
             probe_data = x_temp;
             average_dt = mean(diff(time));
             sampling_freq = 1/average_dt;
-            Fn = sampling_freq/2; % Nyquist frequency 
-            number_elements_time = numel(time);
-            centered_data = probe_data-mean(probe_data); %Center the data on zero for mean
-            normalized_fft_data = fft(centered_data)/number_elements_time; 
-            freq_vector = linspace(0, 1, fix(number_elements_time/2)+1)*Fn;
+            Fn = sampling_freq / 2; % Nyquist frequency
+
+            % Determine the index to start from the second half of the data / Round down to lowest number of half elements in probe_data ,then +1 because MATLAB is one-based indexed, so shifts start_index to start of 2nd half
+            start_index = floor(numel(probe_data) / 2) + 1;
+
+            % Select only the last half of the probe_data
+            last_half_data = probe_data(start_index:end);
+
+            % Adjust the number of elements to reflect the 2nd half of data
+            number_elements_time = numel(last_half_data);
+
+            % Center the data on zero for mean
+            centered_data = last_half_data - mean(last_half_data);
+
+            % Perform FFT normalized by the number of elements
+            normalized_fft_data = fft(centered_data) / number_elements_time;
+
+            % Frequency vector calculation adjusted for the new data length
+            freq_vector = linspace(0, 1, fix(number_elements_time / 2) + 1) * Fn;
+
+            % Index vector for the frequencies
             index_vector = 1:numel(freq_vector);
 
             % Find the dominant frequency and its amplitude
-            %   Need to double it because when signal is centered, power is
+            %   Need to double it because when signal is centered and normalized, original energy at each f represented equaly of both sides of 0.  Looking at positive values of f, so need to double for correct amplitude.
             %   distributed in both positive and negative. double the abs accounts for this
             [amplitude, idx_max] = max(abs(normalized_fft_data(index_vector)) * 2);
             dominant_frequency = freq_vector(idx_max);
@@ -277,7 +291,7 @@ for nn = isort(1:iskip:end) # Sorts them by increments of iskip...for iskip>1, s
             [~, idx_desired] = min(abs(freq_vector - desired_frequency));
 
             % Check if there is a peak around the desired frequency and amplitude is greater than 
-                if idx_desired > 1 && idx_desired < numel(freq_vector) 
+                if idx_desired > 1 && idx_desired < numel(freq_vector) && amplitude > cutoff_amplitude
                     %  fprintf('*** Checking for Slope  ***\n');
                     % Calculate the sign of the slope before and after the desired frequency
                     sign_slope_before = sign(normalized_fft_data(idx_desired) - normalized_fft_data(idx_desired - 1));
@@ -296,7 +310,7 @@ for nn = isort(1:iskip:end) # Sorts them by increments of iskip...for iskip>1, s
                         %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');
                     end
                 else
-                    %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');
+                    %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');mail
                 end
         end
     end
