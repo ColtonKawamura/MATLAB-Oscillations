@@ -1,5 +1,5 @@
-function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, w_D, Nt, N, P, W, seed)
-%% Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(100, 1, 7.59, 6.28, 300, 5000, 0.05, 5, 5)
+function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, w_D, Nt, N, P, W, seed, tolerance)
+%% Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(100, 1, 7.59, 6.28, 300, 5000, 0.05, 5, 5, 0.05)
 
 % Set up initial conditions and visualization
 % Add random initial velocities
@@ -12,19 +12,18 @@ function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, 
 % Add dt calculation based on sqrt(m/k)
 % Add Ek(nt) storage inside loop
 
-% % Manual variables for troubleshooting
+% % % Manual variables for troubleshooting
 K = 100;
 M = 1
 Bv = 1;
-w_D = 0.28;
+w_D = 1.28;
 Nt =1000;
 N = 5000;
 P=0.05;
 W = 5;
 seed = 5;
+tolerance = 0.5;
 
- cutoff_amplitude = 2.6E-5
-% cutoff_amplitude = 0
 
 % close all
 K_in = K;
@@ -240,7 +239,6 @@ dimensionless_p=P;
 driving_amplitude=A;
 
 % Initialize output vectors
-cutoff_amplitude = 0
 initial_position_vector = [];
 amplitude_vector = [];
 phase_vector = [];
@@ -284,7 +282,7 @@ for nn = isort(1:iskip:end) # Sorts them by increments of iskip...for iskip>1, s
                     sign_slope_after = sign(normalized_fft_data(idx_desired + 1) - normalized_fft_data(idx_desired));
                     
                     % Check if the signs of the slopes are different and if the values on both sides are greater than the value at the desired frequency
-                    if sign_slope_before ~= sign_slope_after && normalized_fft_data(idx_desired - 1) < normalized_fft_data(idx_desired) && normalized_fft_data(idx_desired + 1) < normalized_fft_data(idx_desired)
+                    if sign_slope_before ~= sign_slope_after && normalized_fft_data(idx_desired - 1) < normalized_fft_data(idx_desired) && normalized_fft_data(idx_desired + 1) < normalized_fft_data(idx_desired) && abs(dominant_frequency - desired_frequency) < tolerance
                         %  fprintf('Peak found around the driving frequency. Storing data\n');
 
                         amplitude_vector = [amplitude_vector, amplitude]; % Pulls amplitude from fft calculation
