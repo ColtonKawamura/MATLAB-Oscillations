@@ -17,12 +17,12 @@ K = 100;
 M = 1
 Bv = 1;
 w_D = 1.28;
-Nt =1000;
+Nt =3000;
 N = 5000;
 P=0.05;
 W = 5;
 seed = 5;
-tolerance = 0.5;
+tolerance = 5;
 
 
 % close all
