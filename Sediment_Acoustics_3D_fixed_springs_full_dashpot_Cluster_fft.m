@@ -17,12 +17,12 @@ K = 100;
 M = 1
 Bv = 1;
 w_D = 1.28;
-Nt =3000;
+Nt =1000;
 N = 5000;
 P=0.05;
 W = 5;
 seed = 5;
-tolerance = 5;
+tolerance = 0.5;
 
 
 % close all
@@ -245,11 +245,11 @@ phase_vector = [];
 valid_probe_numbers = [];
 initial_phase_offset = 0;
 
-for nn = isort(1:iskip:end) # Sorts them by increments of iskip...for iskip>1, speeds things up
-    if(~left_wall_list(nn)) # Executes the following block only if the particle indexed by nn is not on the left wall.
-        x_temp = x_all(nn,:); # extracts and stores the time-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
+for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, speeds things up
+    if(~left_wall_list(nn)) % Executes the following block only if the particle indexed by nn is not on the left wall.
+        x_temp = x_all(nn,:); % extracts and stores the time-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
        
-        if length(unique(x_temp))>10 # Checks if x_temp has more than 100 unique values AKA only process data that moves
+        if length(unique(x_temp))>10 % Checks if x_temp has more than 100 unique values AKA only process data that moves
             %  fprintf('*** Doing fft fit  ***\n');
             % FFT "engine"
             probe_data = x_temp;
