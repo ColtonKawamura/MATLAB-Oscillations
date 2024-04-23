@@ -3,3 +3,5 @@ octave-workspace
 workspace.mat
 octave-workspace
 octave-workspace
+workspace.m
+.gitignore
