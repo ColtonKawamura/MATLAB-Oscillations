@@ -16,7 +16,7 @@ function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, 
 K = 100;
 M = 1
 Bv = 8;
-w_D = 1.28;
+w_D = 6.28;
 Nt =1000;
 N = 5000;
 P=0.05;
@@ -264,16 +264,16 @@ for nn = isort(1:iskip:end) # Sorts them by increments of iskip...for iskip>1, s
             last_half_data = probe_data(start_index:end);
 
             % Adjust the number of elements to reflect the 2nd half of data
-            number_elements_time = numel(last_half_data);
+            half_number_elements_time = numel(last_half_data);
 
             % Center the data on zero for mean
             centered_data = last_half_data - mean(last_half_data);
 
-            % Perform FFT normalized by the number of elements
-            normalized_fft_data = fft(centered_data) / number_elements_time;
+            % Perform FFT normalized by the number of elements of time of that signal 
+            normalized_fft_data = fft(centered_data) / half_number_elements_time;
 
             % Frequency vector calculation adjusted for the new data length
-            freq_vector = linspace(0, 1, fix(number_elements_time / 2) + 1) * Fn;
+            freq_vector = linspace(0, 1, fix(half_number_elements_time / 2) + 1) * Fn;
 
             % Index vector for the frequencies
             index_vector = 1:numel(freq_vector);
@@ -357,7 +357,7 @@ semilogy(initial_position_vector, abs(amplitude_vector), 'bo', 'DisplayName', 'D
 hold on;
 semilogy(initial_position_vector, fit_line, 'r-', 'DisplayName', 'Linear Fit');
 xlabel('Distance');
-ylabel('Probe Oscillation Amplitude');
+ylabel('Particle Oscillation Amplitude');
 % title('Linear Fit of Attenuation of Oscillation in Probes', 'FontSize', 16);
     % Set the title with variables
 title(sprintf('f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f, alpha=%.2f', driving_frequency, kn, gamma_n, dimensionless_p, slope), 'FontSize', 12);
