@@ -1,4 +1,4 @@
-function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, w_D, Nt, N, P, W, seed)
+% function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, w_D, Nt, N, P, W, seed)
 %% Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(100, 1, 7.59, 6.28, 300, 5000, 0.05, 5, 5)
 
 % Set up initial conditions and visualization
