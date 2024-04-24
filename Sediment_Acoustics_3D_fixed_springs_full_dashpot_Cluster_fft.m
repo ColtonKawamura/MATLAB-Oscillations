@@ -1,4 +1,4 @@
-% function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, w_D, Nt, N, P, W, seed, tolerance)
+% function Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(K, M, Bv, w_D, Nt, N, P, W, seed, freq_matching_tolerance)
 %% Sediment_Acoustics_3D_fixed_springs_full_dashpot_Cluster_fft(100, 1, 7.59, 6.28, 300, 5000, 0.05, 5, 5, 0.05)
 
 % Set up initial conditions and visualization
@@ -22,7 +22,7 @@ N = 5000;
 P=0.05;
 W = 5;
 seed = 5;
-tolerance = 0.5;
+freq_matching_tolerance = 0.5;
 
 
 % close all
@@ -230,8 +230,26 @@ list = [];
 b_start = 0;
 offset_guess = 0;
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Damping Warning for Data Anaylsis 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Calculate the damping ratio
+damping_ratio = Bv / (2 * sqrt(M * K)); % Damping ratio formula
+
+%% Check for overdamping
+if damping_ratio > 1
+    warning('The system is overdamped! Damping ratio (damping_ratio) is %f, which is greater than 1.', damping_ratio);
+elseif  damping_ratio == 1
+    fprintf('The system is critically damped.\n');
+else
+    fprintf('The system is underdamped.\n');
+end
+
+
 % Colton's FFT "engine" adaptation of existing variables
-time = tvec;
+time_vector = tvec;
 driving_frequency = omega_D/6.2832;
 kn = K;
 gamma_n = Bv;
@@ -242,30 +260,30 @@ driving_amplitude=A;
 initial_position_vector = [];
 amplitude_vector = [];
 phase_vector = [];
-valid_probe_numbers = [];
+cleaned_particle_index = [];
 initial_phase_offset = 0;
 
 for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, speeds things up
     if(~left_wall_list(nn)) % Executes the following block only if the particle indexed by nn is not on the left wall.
-        x_temp = x_all(nn,:); % extracts and stores the time-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
+        x_temp = x_all(nn,:); % extracts and stores the time_vector-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
        
         if length(unique(x_temp))>10 % Checks if x_temp has more than 100 unique values AKA only process data that moves
             %  fprintf('*** Doing fft fit  ***\n');
             % FFT "engine"
-            probe_data = x_temp;
-            average_dt = mean(diff(time));
+            particle_x_position = x_temp;
+            average_dt = mean(diff(time_vector));
             sampling_freq = 1/average_dt;
             Fn = sampling_freq/2; % Nyquist frequency 
-            number_elements_time = numel(time);
-            centered_data = probe_data-mean(probe_data); %Center the data on zero for mean
+            number_elements_time = numel(time_vector);
+            centered_data = particle_x_position-mean(particle_x_position); %Center the data on zero for mean
             normalized_fft_data = fft(centered_data)/number_elements_time; 
             freq_vector = linspace(0, 1, fix(number_elements_time/2)+1)*Fn;
             index_vector = 1:numel(freq_vector);
 
-            % Find the dominant frequency and its amplitude
+            % Find the dominant frequency and its max_amplitude
             %   Need to double it because when signal is centered, power is
             %   distributed in both positive and negative. double the abs accounts for this
-            [amplitude, idx_max] = max(abs(normalized_fft_data(index_vector)) * 2);
+            [max_amplitude, idx_max] = max(abs(normalized_fft_data(index_vector)) * 2);
             dominant_frequency = freq_vector(idx_max);
 
             % Find the index of the frequency closest to driving frequency
@@ -274,7 +292,7 @@ for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, s
             % Find the index of the closest frequency to the desired frequency
             [~, idx_desired] = min(abs(freq_vector - desired_frequency));
 
-            % Check if there is a peak around the desired frequency and amplitude is greater than 
+            % Check if there is a peak around the desired frequency and max_amplitude is greater than 
                 if idx_desired > 1 && idx_desired < numel(freq_vector) 
                     %  fprintf('*** Checking for Slope  ***\n');
                     % Calculate the sign of the slope before and after the desired frequency
@@ -282,14 +300,14 @@ for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, s
                     sign_slope_after = sign(normalized_fft_data(idx_desired + 1) - normalized_fft_data(idx_desired));
                     
                     % Check if the signs of the slopes are different and if the values on both sides are greater than the value at the desired frequency
-                    if sign_slope_before ~= sign_slope_after && normalized_fft_data(idx_desired - 1) < normalized_fft_data(idx_desired) && normalized_fft_data(idx_desired + 1) < normalized_fft_data(idx_desired) && abs(dominant_frequency - desired_frequency) < tolerance
+                    if sign_slope_before ~= sign_slope_after && normalized_fft_data(idx_desired - 1) < normalized_fft_data(idx_desired) && normalized_fft_data(idx_desired + 1) < normalized_fft_data(idx_desired) && abs(dominant_frequency - desired_frequency) < freq_matching_tolerance
                         %  fprintf('Peak found around the driving frequency. Storing data\n');
 
-                        amplitude_vector = [amplitude_vector, amplitude]; % Pulls amplitude from fft calculation
-                        initial_position_vector = [initial_position_vector, probe_data(1)];
+                        amplitude_vector = [amplitude_vector, max_amplitude]; % Pulls max_amplitude from fft calculation
+                        initial_position_vector = [initial_position_vector, particle_x_position(1)];
                         phase_vector = [phase_vector, angle(normalized_fft_data(idx_desired))];
                         % phase_vector = [phase_vector, s(2)];
-                        valid_probe_numbers = [valid_probe_numbers, nn];
+                        cleaned_particle_index = [cleaned_particle_index, nn];
                     else
                         %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');
                     end
@@ -302,38 +320,21 @@ for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, s
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Damping Warning for Data Anaylsis 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% Calculate the damping ratio
-zeta = Bv / (2 * sqrt(M * K)); % Damping ratio formula
-
-%% Check for overdamping
-if zeta > 1
-    warning('The system is overdamped! Damping ratio (zeta) is %f, which is greater than 1.', zeta);
-elseif zeta == 1
-    fprintf('The system is critically damped.\n');
-else
-    fprintf('The system is underdamped.\n');
-end
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Semi log plot (because exponential)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Perform linear fit
 coefficients = polyfit(initial_position_vector, log(abs(amplitude_vector)), 1);
 
-% Extract slope and intercept
-slope = coefficients(1);
-intercept = coefficients(2);
+% Extract slope and y_interecpt
+simulation_attenuation = coefficients(1);
+y_interecpt = coefficients(2);
 
 % Create a linear fit line
-fit_line = exp(intercept) * exp(initial_position_vector.*slope);
+fit_line = exp(y_interecpt) * exp(initial_position_vector.*simulation_attenuation);
 
 % Convert coefficients to string
-equation_str = sprintf('y = %.4f * exp(%.4f)', exp(intercept), slope);
+equation_str = sprintf('y = %.4f * exp(%.4f)', exp(y_interecpt), simulation_attenuation);
 
 % Plot original data and linear fit
 figure;
@@ -341,8 +342,8 @@ semilogy(initial_position_vector, abs(amplitude_vector), 'bo', 'DisplayName', 'D
 hold on;
 semilogy(initial_position_vector, fit_line, 'r-', 'DisplayName', 'Linear Fit');
 xlabel('Distance');
-ylabel('Probe Oscillation Amplitude');
-% title('Linear Fit of Attenuation of Oscillation in Probes', 'FontSize', 16);
+ylabel('Particle Oscillation Max Amplitude');
+
     % Set the title with variables
 title(sprintf('f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f, alpha=%.2f', driving_frequency, kn, gamma_n, dimensionless_p, slope), 'FontSize', 12);
 legend('show');
@@ -369,8 +370,8 @@ fitted_line = polyval(p, initial_position_vector);
 plot(initial_position_vector, fitted_line, '-r');
 
 % Store the slope of the line as wavenumber
-wavenumber = p(1);
-wavespeed = driving_frequency/wavenumber;
+simulation_wavenumber = p(1);
+simulation_wavespeed = driving_frequency/simulation_wavenumber;
 
 % Label the axes
 xlabel('z(t=0)');
@@ -384,7 +385,7 @@ yticklabels = arrayfun(@(x) sprintf('%.2f\\pi', x/pi), yticks, 'UniformOutput', 
 set(gca, 'YTick', yticks, 'YTickLabel', yticklabels);  % Apply custom ticks and labels
 
 % Set the title with variables
-title(sprintf('f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f, k=%.2f', driving_frequency, kn, gamma_n, dimensionless_p, wavenumber), 'FontSize', 12);
+title(sprintf('f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f, k=%.2f', driving_frequency, kn, gamma_n, dimensionless_p, simulation_wavenumber), 'FontSize', 12);
 
 % Hold off to finish the plotting
 hold off;
@@ -393,10 +394,6 @@ hold off;
 % Output
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Change variable names for more verbosity 
-attenuation = slope;
-cleaned_particle_index = valid_probe_numbers; % Index of particles that made it through fft frequency “threshold” 
-
 % Save the file
 filename = sprintf('output_N%d_P%d_W%s_seed%d_K%d_Bv%d_wd%d_M%d.mat', N, P, W, seed, K, Bv, w_D, M);
-save(filename, 'cleaned_particle_index', 'initial_position_vector', 'amplitude_vector', 'attenuation', 'unwrapped_phase_vector', 'wavenumber', 'wavespeed', 'N', 'P', 'W', 'seed', 'K', 'Bv', 'w_D', 'M');
+save(filename, 'cleaned_particle_index', 'initial_position_vector', 'amplitude_vector', 'simulation_attenuation', 'unwrapped_phase_vector', 'simulation_wavenumber', 'simulation_wavespeed', 'N', 'P', 'W', 'seed', 'K', 'Bv', 'w_D', 'M');
