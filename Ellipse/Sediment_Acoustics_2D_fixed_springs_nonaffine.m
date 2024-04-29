@@ -394,8 +394,8 @@ ellipse_stats_nonzero = ellipse_stats;
 ellipse_stats_nonzero(:,3) = ellipse_stats_nonzero(:,3)*180/pi;
 ellipse_stats_nonzero(:,1:2) = abs(ellipse_stats_nonzero(:,1:2));
 ellipse_stats_nonzero = ellipse_stats_nonzero(ellipse_stats_nonzero(:,1)~=0,:);
-[asp_rat_counts,asp_rat_bins] = histcounts((ellipse_stats_nonzero(:,2))./(ellipse_stats_nonzero(:,1)),0:.05:1);
-[rot_ang_counts,rot_ang_bins] = histcounts(abs(ellipse_stats_nonzero(:,3)),0:5:90);
+[asp_rat_counts,asp_rat_bins] = histc((ellipse_stats_nonzero(:,2))./(ellipse_stats_nonzero(:,1)),0:.05:1);
+[rot_ang_counts,rot_ang_bins] = histc(abs(ellipse_stats_nonzero(:,3)),0:5:90);
 
 if plotdebug
     figure
