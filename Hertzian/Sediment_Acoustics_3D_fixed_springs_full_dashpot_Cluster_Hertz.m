@@ -15,7 +15,7 @@
 
 % % % Manual variables for troubleshooting
 K = 100;
-M = 1
+M = 1;
 Bv = 1;
 w_D = 6.28;
 Nt =500;
@@ -241,9 +241,6 @@ tvec = (1:Nt)*dt;
 omega_D = w_D;
 [~,isort] = sort(x0);
 iskip = 1;
-list = [];
-b_start = 0;
-offset_guess = 0;
 
 problem_children_index = [];
 time_vector = tvec;
@@ -371,7 +368,6 @@ tvec = (1:Nt)*dt;
 omega_D = w_D;
 [~,isort] = sort(x0);
 iskip = 50;
-list = [];
 b_start = 0;
 offset_guess = 0;
 
@@ -601,7 +597,7 @@ for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, s
             number_bins = length(normalized_fft_data);
             found_peaks = [];
             for i = 2:number_bins-1 % starts at 2 and ends at end-1 because can't check slopes around the last and first points
-                if abs(normalized_fft_data(i)) > abs(normalized_fft_data(i-1)) && abs(normalized_fft_data(i)) > abs(normalized_fft_data(i+1)) # Check if value of freq bin i is greater than those to the left and right
+                if abs(normalized_fft_data(i)) > abs(normalized_fft_data(i-1)) && abs(normalized_fft_data(i)) > abs(normalized_fft_data(i+1)) % Check if value of freq bin i is greater than those to the left and right
                     found_peaks = [found_peaks, i];
                 end
             end
