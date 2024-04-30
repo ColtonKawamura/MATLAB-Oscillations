@@ -18,7 +18,7 @@ K = 100;
 M = 1;
 Bv = 1;
 w_D = 6.28;
-Nt =500;
+Nt =5000;
 N = 10000;
 P=0.05;
 W = 5;
@@ -360,6 +360,7 @@ legend('show');
 grid on;
 hold off
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % fft fitting
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -367,7 +368,7 @@ hold off
 tvec = (1:Nt)*dt;
 omega_D = w_D;
 [~,isort] = sort(x0);
-iskip = 50;
+iskip = 1;
 b_start = 0;
 offset_guess = 0;
 
@@ -393,7 +394,7 @@ for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, s
         x_temp = x_all(nn,:); % extracts and stores the time_vector-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
        
         if length(unique(x_temp))>10 % Checks if x_temp has more than 100 unique values AKA only process data that moves
-            %  fprintf('*** Doing fft fit  ***\n');
+            fprintf('*** Doing fft fit  ***\n');
             % FFT "engine"
             particle_position = x_temp;
             average_dt = mean(diff(time_vector));
@@ -418,29 +419,28 @@ for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, s
             [~, idx_desired] = min(abs(freq_vector - desired_frequency));
 
             % Check if there is a peak around the desired frequency and amplitude is greater than 
-                if idx_desired > 1 && idx_desired < numel(freq_vector) 
-                    %  fprintf('*** Checking for Slope  ***\n');
-                    % Calculate the sign of the slope before and after the desired frequency
-                    sign_slope_before = sign(normalized_fft_data(idx_desired) - normalized_fft_data(idx_desired - 1));
-                    sign_slope_after = sign(normalized_fft_data(idx_desired + 1) - normalized_fft_data(idx_desired));
-                    
-                    % Check if the signs of the slopes are different and if the values on both sides are greater than the value at the desired frequency
-                    if sign_slope_before ~= sign_slope_after && abs(normalized_fft_data(idx_desired - 1)) < abs(normalized_fft_data(idx_desired)) && abs(normalized_fft_data(idx_desired + 1)) < abs(normalized_fft_data(idx_desired)) && abs(dominant_frequency - desired_frequency) < freq_match_tolerance
-                        %  fprintf('Peak found around the driving frequency. Storing data\n');
+            if idx_desired > 1 && idx_desired < numel(freq_vector) 
+                %  fprintf('*** Checking for Slope  ***\n');
+                % Calculate the sign of the slope before and after the desired frequency
+                sign_slope_before = sign(normalized_fft_data(idx_desired) - normalized_fft_data(idx_desired - 1));
+                sign_slope_after = sign(normalized_fft_data(idx_desired + 1) - normalized_fft_data(idx_desired));
+                
+                % Check if the signs of the slopes are different and if the values on both sides are greater than the value at the desired frequency
+                if sign_slope_before ~= sign_slope_after && abs(normalized_fft_data(idx_desired - 1)) < abs(normalized_fft_data(idx_desired)) && abs(normalized_fft_data(idx_desired + 1)) < abs(normalized_fft_data(idx_desired)) && abs(dominant_frequency - desired_frequency) < freq_match_tolerance
+                    %  fprintf('Peak found around the driving frequency. Storing data\n');
 
-                        amplitude_vector = [amplitude_vector, max_particle_amplitude]; % Pulls amplitude from fft calculation
-                        initial_position_vector = [initial_position_vector, particle_position(1)];
-                        phase_vector = [phase_vector, angle(normalized_fft_data(idx_desired))];
-                        cleaned_particle_index = [cleaned_particle_index, nn];
-                    else
-                        %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');
-                    end
+                    amplitude_vector = [amplitude_vector, max_particle_amplitude]; % Pulls amplitude from fft calculation
+                    initial_position_vector = [initial_position_vector, particle_position(1)];
+                    phase_vector = [phase_vector, angle(normalized_fft_data(idx_desired))];
+                    cleaned_particle_index = [cleaned_particle_index, nn];
                 else
                     %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');
                 end
+            else
+                %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');
+            end
         end
     end
-
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
