@@ -30,12 +30,12 @@ PackingName = ['N' num2str(N) '_P' num2str(P) '_Width' num2str(W) '_Seed' num2st
 
 load(['Packings/' PackingName '.mat']);
 
-K = K_in;
+K = K_in; % Reassign the initial spring constant back to K after potentially modified by loaded settings.
 % N = length(Dn);
 x_all = zeros([N,Nt]);
 y_all = zeros([N,Nt]);
 flag = true;
-Lx0 = Lx;
+Lx0 = Lx; % Store the initial value of the horizontal length of the simulation area, useful for boundary conditions or scaling.
 B=0;
 
 
@@ -44,6 +44,8 @@ A = P_target/100;
 
 
 dt = pi*sqrt(M/K)*0.05;
+
+% Initialize old acceleration and velocity arrays to zero for all particles, preparing for the first computation step.
 ax_old = 0*x;
 ay_old = 0*y;
 vx = 0*x;
@@ -64,20 +66,30 @@ Zn_list = [];
 neighbor_list_all = [];
 spring_list_all = [];
 for nn = 1:N
+    % For each particle 'nn', initialize temporary lists to collect its neighbors and the lengths of springs connecting them.
     neighbor_list_nn = [];
     spring_list_nn = [];
-    for mm = [1:nn-1,nn+1:N]
+
+    for mm = [1:nn-1,nn+1:N] % Check against all other particles 'mm' except itself.
+
+        % Calculate the y-distance considering periodic boundary conditions in the vertical direction (Ly is the system height).
         dy = y(mm)-y(nn);
         dy = dy - round(dy/Ly)*Ly;
+
+        % Calculate effective diameter for interaction, adjusted by 'skin'.
         Dnm = (1+skin)*(Dn(nn) + Dn(mm))/2;
-        if(abs(dy) <= Dnm)
+
+        if(abs(dy) <= Dnm) % Only consider particle pairs within the vertical interaction range.
+                        
+            % Calculate horizontal distance and the square of the direct distance.
             dx = x(mm)-x(nn);
             dnm = dx.^2+dy.^2;
-            if(dnm < Dnm^2)
 
+            if(dnm < Dnm^2) % If within the circular interaction range,
+                
+                % Store the neighbor and the spring length (sqrt of the direct distance).
                 neighbor_list_nn = [neighbor_list_nn, mm];
                 spring_list_nn = [spring_list_nn, sqrt(dnm)];
-
             end
         end
     end
