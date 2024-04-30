@@ -601,7 +601,7 @@ for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, s
             number_bins = length(normalized_fft_data);
             found_peaks = [];
             for i = 2:number_bins-1 % starts at 2 and ends at end-1 because can't check slopes around the last and first points
-                if abs(normalized_fft_data(i)) > abs(normalized_fft_data(i-1)) && abs(normalized_fft_data(i)) > abs(normalized_fft_data(i+1))
+                if abs(normalized_fft_data(i)) > abs(normalized_fft_data(i-1)) && abs(normalized_fft_data(i)) > abs(normalized_fft_data(i+1)) # Check if value of freq bin i is greater than those to the left and right
                     found_peaks = [found_peaks, i];
                 end
             end
