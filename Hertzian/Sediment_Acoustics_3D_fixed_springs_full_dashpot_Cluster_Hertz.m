@@ -527,7 +527,7 @@ hold off;
 tvec = (1:Nt)*dt;
 omega_D = w_D;
 [~,isort] = sort(x0);
-iskip = 1;
+iskip = 10;
 list = [];
 b_start = 0;
 offset_guess = 0;
@@ -605,8 +605,8 @@ for nn = isort(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, s
                     found_peaks = [found_peaks, i];
                 end
             end
-            if length(found_peaks) > 1
-                frequency_spectra{end+1} = struct('ParticleIndex', nn, 'Amplitudes', abs(normalized_fft_data), 'Frequencies', freq_vector)
+            if length(found_peaks) > 2
+                frequency_spectra{end+1} = struct('ParticleIndex', nn, 'Amplitudes', abs(normalized_fft_data(index_vector)), 'Frequencies', freq_vector);
                 fprintf('*** Alert: More Frequency Peaks Found. ***\n');
             end
         end
