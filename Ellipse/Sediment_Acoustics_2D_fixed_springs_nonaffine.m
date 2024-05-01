@@ -106,7 +106,7 @@ right_wall_list = (x>Lx-Dn/2);
 bulk_list = ~(left_wall_list | right_wall_list);
 
 %% Main Loop
-P = 0;
+P = 0; % Why change the pressure?
 for nt = 1:Nt
 
 
@@ -219,6 +219,8 @@ tiledlayout(2,3,'TileSpacing','tight')
 iskip = 10;
 list = [];
 b_start = 0;
+
+% What is intent of this loop? Just debugging for particles in ilist?
 for nn = isort(ilist)
     % if(~left_wall_list(nn))
     x_temp = x_all(nn,:);
@@ -298,8 +300,14 @@ for nn_counter = 1:length(nn_list)
         x_temp = x_all(nn,:);
         y_temp = y_all(nn,:);
         if length(unique(x_temp))>100
+
+            % find index when particles rises to .5 its max amplitude
             i0 = find(x_temp>x0(nn)+0.5*(max(x_temp)-x0(nn)),1,'first');
+
+            % Calculate the amplitude as the Euclidean distance from the initial position (x0(nn), y0(nn)).
             amp = sqrt((x_temp-x0(nn)).^2+(y_temp-y0(nn)).^2);
+
+            % Calculate the angle from the initial position to each point in Cartesian coordinates.
             ang = atan2((y_temp-y0(nn)),(x_temp-x0(nn)));
             t_temp = tvec(i0:end);
 
@@ -310,15 +318,24 @@ for nn_counter = 1:length(nn_list)
             % figure(1043), plot(x_temp,y_temp,'.'), axis equal
             % title(['$x(t=0)=' num2str(round(x0(nn))) '$'],'Interpreter','latex')
 
-
+            % Normalize the x and y coordinates by subtracting the initial position and scaling by A.
             X = (x_temp(100:end)-x0(nn))/A;
             Y = (y_temp(100:end)-y0(nn))/A;
-            X = X;
+
+            % Why are these set to their same values? 
+            X = X; 
             Y = Y;
 
+            % Compute the radius squared for each point relative to the origin.
             R = X.^2+Y.^2;
+
+            % Find the maximum radius squared from the array R.
             R_max = max(R);
+
+            % Find the index of the first occurrence where R equals R_max.
             max_ind = find(R == R_max,1,"first");
+
+            % Extract the X and Y coordinates corresponding to the maximum radius.
             X_max = X(max_ind);
             Y_max = Y(max_ind);
 
@@ -333,20 +350,30 @@ for nn_counter = 1:length(nn_list)
             % af = fminsearch(f,a0)
             af = [];
 
+            % *** NEEDS fit_ellipse FUNCTION *** Fit an ellipse to the latter half of the data points, returning a structure with ellipse parameters.
             ellipse_t = fit_ellipse(X(round(end/2):end)',Y(round(end/2):end)');
             % nn_counter
+
+            % Check if the ellipse fitting structure 'ellipse_t' is not empty and contains  parameter 'a' that comes from the fit_ellipse function
             if ~isempty(ellipse_t) && ~isempty(ellipse_t.a)
                 % if nn_counter==336
                 
                 % end
-                af(1) = ellipse_t.a;
-                af(2) = ellipse_t.b;
-                af(3) = -ellipse_t.phi;
+
+                % Assign the semi-major axis, semi-minor axis, and negative rotation angle from 'ellipse_t' to 'af'
+                af(1) = ellipse_t.a; % sub axis (radius) of the X axis of the non-tilt ellipse
+                af(2) = ellipse_t.b; % sub axis (radius) of the Y axis of the non-tilt ellipse
+                af(3) = -ellipse_t.phi; % orientation in radians of the ellipse (tilt)
             else
+                % Define initial parameter estimates for fitting based on maximum radius and the angle at maximum point
                 a0 = [R_max R_max atan(Y_max/X_max)];
-                c = [0 0];
+                c = [0 0]; % Center of transformation set to origin
+
+                % Define the function 'f' to minimize an ellipse fit error function parameterized by 'a'
                 f = @(a) ((((X-c(1))*cos(a(3))+(Y-c(2))*sin(a(3))).^2)/a(1).^2 + (((X-c(1))*sin(a(3))-(Y-c(2))*cos(a(3))).^2)/a(2).^2 -1);
                 %[af fval] = fminsearch(f,a0);
+
+                % Use nonlinear least squares to optimize parameters 'a' starting from 'a0'
                 af = lsqnonlin(f, a0);%, [], [], options);
             end
 
@@ -358,7 +385,7 @@ for nn_counter = 1:length(nn_list)
                     af(2) = af(1);
                     af(1) = temp;
                 end
-                %
+
                 af(3) = (mod(af(3)+pi/2,pi)-pi/2);
 
                 % plot(X,Y,'*'), hold on
