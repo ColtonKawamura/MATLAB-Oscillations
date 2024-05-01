@@ -1,4 +1,4 @@
-function [asp_rat_counts,asp_rat_bins,rot_ang_counts,rot_ang_bins]=Sediment_Acoustics_2D_fixed_springs_nonaffine(K, M, Bv, w_D, Nt, N, P, W, seed, nnmax, plotdebug)
+% function [asp_rat_counts,asp_rat_bins,rot_ang_counts,rot_ang_bins]=Sediment_Acoustics_2D_fixed_springs_nonaffine(K, M, Bv, w_D, Nt, N, P, W, seed, nnmax, plotdebug)
 %% Molecular Dynamics Simulator (Adapted from Mark D. Shattuck, CCNY)
 
 % Set up initial conditions and visualization
@@ -13,7 +13,7 @@ function [asp_rat_counts,asp_rat_bins,rot_ang_counts,rot_ang_bins]=Sediment_Acou
 % Add Ek(nt) storage inside loop
 
 K = 100;
-M = 1
+M = 1;
 Bv = 1;
 w_D = 6.28;
 Nt =200;
@@ -21,7 +21,8 @@ N = 1000;
 P=0.1;
 W = 5;
 seed = 2;
-
+plotdebug = 0;
+nnmax = N;
 
 % close all
 
@@ -223,20 +224,36 @@ for nn = isort(ilist)
     x_temp = x_all(nn,:);
     y_temp = y_all(nn,:);
     % if length(unique(x_temp))>100
+
+    % Find the first index i0 where x_temp exceeds the midpoint between x0(nn) and its maximum value.
     i0 = find(x_temp>x0(nn)+0.5*(max(x_temp)-x0(nn)),1,'first');
+
+    % Calculate the amplitude as the distance from the initial position.
     amp = sqrt((x_temp-x0(nn)).^2+(y_temp-y0(nn)).^2);
+
+    % Calculate the angle from the initial position.
     ang = atan2((y_temp-y0(nn)),(x_temp-x0(nn)));
+
+    % Shorten the time vector from the found index i0 to the end.
     t_temp = tvec(i0:end);
 
+    % Compute the median amplitude.
     medamp = median(amp);
+
+    % Create a time array for plotting.
     t = 1:length(amp);
     % figure(1040), plot(t(amp>medamp),atan(tan(ang(amp>medamp))),'o')
     % figure(1041), plot(t,amp,'o')
     % figure(1043), plot(x_temp,y_temp,'.'), axis equal
-    %
+    
+    % Check if plotting is enabled for debugging.
     if plotdebug
+
+        % Focus on figure 1044 and plot the next tile.
         figure(1044),
         nexttile
+
+        % Normalize and plot the positions by some scale A with equal axes.
         plot((x_temp-x0(nn))/A,(y_temp-y0(nn))/A,'.'), axis equal
         % nn
         title(['$x(t=0)=' num2str(round(x0(nn))) '$'],'Interpreter','latex')
@@ -263,6 +280,7 @@ for nn = isort(ilist)
 
 end
 % pause
+
 tvec = (1:Nt)*dt;
 omega_D = w_D;
 [~,isort] = sort(x0);
@@ -406,8 +424,8 @@ ellipse_stats_nonzero = ellipse_stats;
 ellipse_stats_nonzero(:,3) = ellipse_stats_nonzero(:,3)*180/pi;
 ellipse_stats_nonzero(:,1:2) = abs(ellipse_stats_nonzero(:,1:2));
 ellipse_stats_nonzero = ellipse_stats_nonzero(ellipse_stats_nonzero(:,1)~=0,:);
-[asp_rat_counts,asp_rat_bins] = histc((ellipse_stats_nonzero(:,2))./(ellipse_stats_nonzero(:,1)),0:.05:1);
-[rot_ang_counts,rot_ang_bins] = histc(abs(ellipse_stats_nonzero(:,3)),0:5:90);
+[asp_rat_counts,asp_rat_bins] = histcounts((ellipse_stats_nonzero(:,2))./(ellipse_stats_nonzero(:,1)),0:.05:1);
+[rot_ang_counts,rot_ang_bins] = histcounts(abs(ellipse_stats_nonzero(:,3)),0:5:90);
 
 if plotdebug
     figure
