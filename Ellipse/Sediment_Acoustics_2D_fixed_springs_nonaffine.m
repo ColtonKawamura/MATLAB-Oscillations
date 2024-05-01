@@ -379,13 +379,20 @@ for nn_counter = 1:length(nn_list)
 
             if ~isempty(af)
                 % af(1:2) = abs(af(1:2));
+
+                % If the semi-major axis (af(1)) is less than the semi-minor axis (af(2))
                 if af(1)<af(2)
+
+                    % Rotate the ellipse by -pi/2 to correct the orientation
                     af(3) = af(3)-pi/2;
+
+                    % Swap the semi-major and semi-minor axes to maintain convention
                     temp = af(2);
                     af(2) = af(1);
                     af(1) = temp;
                 end
 
+                % Normalize the rotation angle af(3) within the range -pi/2 to pi/2
                 af(3) = (mod(af(3)+pi/2,pi)-pi/2);
 
                 % plot(X,Y,'*'), hold on
@@ -426,6 +433,7 @@ for nn_counter = 1:length(nn_list)
                     pause
                 end
 
+                % Store the fitted ellipse parameters (semi-major axis, semi-minor axis, rotation angle) in the ellipse_stats matrix for the current particle.
                 ellipse_stats(nn_counter,:) = af;
             end
             % pause
