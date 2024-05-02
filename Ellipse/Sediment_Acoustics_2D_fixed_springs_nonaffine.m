@@ -12,38 +12,36 @@
 % Add dt calculation based on sqrt(m/k)
 % Add Ek(nt) storage inside loop
 
-K = 100;
-M = 1;
-Bv = 1;
-w_D = 6.28;
-Nt =200;
-N = 1000;
-P=0.1;
-W = 5;
+K = 100; % Spring Constant
+M = 1; % Mass
+Bv = 1; % gamma_n or dampening constant
+w_D = 6.28; % oscillation frequency
+Nt =1000; % Time steps
+N = 1000; % Number of Particles
+P=0.1; % Pressure
+W = 5; % Width of channel
 seed = 2;
-plotdebug = 0;
+plotdebug = 1;
 nnmax = N;
 
 % close all
 
-K_in = K;
+K_in = K; % Why is this done? There is no K_in, maybe for loading
 PackingName = ['N' num2str(N) '_P' num2str(P) '_Width' num2str(W) '_Seed' num2str(seed)];
 
 load(['Packings/' PackingName '.mat']);
 
-K = K_in; % Reassign the initial spring constant back to K after potentially modified by loaded settings.
+K = K_in; % Reassign the initial spring constant back to K after potentially modified by loaded settings - still not sure why this is done?
 % N = length(Dn);
-x_all = zeros([N,Nt]);
-y_all = zeros([N,Nt]);
+
+x_all = zeros([N,Nt]); % Pre allocating outside of loops because we know what size it should be
+y_all = zeros([N,Nt]); 
+
 flag = true;
+
 Lx0 = Lx; % Store the initial value of the horizontal length of the simulation area, useful for boundary conditions or scaling.
 B=0;
-
-
-
 A = P_target/100;
-
-
 dt = pi*sqrt(M/K)*0.05;
 
 % Initialize old acceleration and velocity arrays to zero for all particles, preparing for the first computation step.
@@ -55,17 +53,16 @@ Ek = zeros(1,Nt);
 Ep = zeros(1,Nt);
 g = 0;
 
-%% initial positions
-
+% initial positions
 x0 = x;
 y0 = y;
 
 %% Make neighbor lists with initial spring lengths
-
 skin = 0;
 Zn_list = [];
 neighbor_list_all = [];
 spring_list_all = [];
+
 for nn = 1:N
     % For each particle 'nn', initialize temporary lists to collect its neighbors and the lengths of springs connecting them.
     neighbor_list_nn = [];
@@ -106,7 +103,7 @@ right_wall_list = (x>Lx-Dn/2);
 bulk_list = ~(left_wall_list | right_wall_list);
 
 %% Main Loop
-P = 0; % Why change the pressure?
+P = 0; % Why change the pressure? To "relax" the packing before 
 for nt = 1:Nt
 
 
@@ -210,6 +207,9 @@ end
 
 %%%%% Post Processing %%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Snapshot of xy displacement for particles at ilist
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 tvec = (1:Nt)*dt;
 omega_D = w_D;
 [~,isort] = sort(x0);
@@ -452,14 +452,24 @@ for nn_counter = 1:length(nn_list)
             % end
         end
     end
-
 end
 
+% Copy the ellipse_stats matrix to a new variable for processing.
 ellipse_stats_nonzero = ellipse_stats;
+
+% Convert the rotation angles from radians to degrees for easier interpretation.
 ellipse_stats_nonzero(:,3) = ellipse_stats_nonzero(:,3)*180/pi;
+
+% Ensure the semi-major and semi-minor axes values are positive.
 ellipse_stats_nonzero(:,1:2) = abs(ellipse_stats_nonzero(:,1:2));
+
+% Remove any rows where the semi-major axis is zero.
 ellipse_stats_nonzero = ellipse_stats_nonzero(ellipse_stats_nonzero(:,1)~=0,:);
+
+% Calculate the histogram of aspect ratios (semi-minor axis divided by semi-major axis) using bins of 0.05.
 [asp_rat_counts,asp_rat_bins] = histcounts((ellipse_stats_nonzero(:,2))./(ellipse_stats_nonzero(:,1)),0:.05:1);
+
+% Calculate the histogram of absolute rotation angles using bins of 5 degrees up to 90 degrees.
 [rot_ang_counts,rot_ang_bins] = histcounts(abs(ellipse_stats_nonzero(:,3)),0:5:90);
 
 if plotdebug
