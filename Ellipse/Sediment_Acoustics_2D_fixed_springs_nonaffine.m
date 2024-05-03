@@ -430,7 +430,7 @@ for nn_counter = 1:length(nn_list)
                     % plot(c(1) + af(1)*cos(t), c(2) + af(2)*sin(t), 'r')
                     % axis([-2 2 -2 2])
                     drawnow
-                    pause
+                    % pause
                 end
 
                 % Store the fitted ellipse parameters (semi-major axis, semi-minor axis, rotation angle) in the ellipse_stats matrix for the current particle.
