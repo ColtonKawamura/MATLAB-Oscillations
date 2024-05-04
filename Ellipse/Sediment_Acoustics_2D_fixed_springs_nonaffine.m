@@ -211,14 +211,11 @@ end
 % Snapshot of xy displacement for particles at ilist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 tvec = (1:Nt)*dt;
-omega_D = w_D;
 [~,isort] = sort(x0);
 ilist = [1,50,105,248,500,1000];
 figure(1044)
 tiledlayout(2,3,'TileSpacing','tight')
 iskip = 10;
-list = [];
-b_start = 0;
 
 % What is intent of this loop? Just debugging for particles in ilist?
 for nn = isort(ilist)
