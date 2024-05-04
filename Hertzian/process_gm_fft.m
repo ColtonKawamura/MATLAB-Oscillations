@@ -120,7 +120,7 @@ hold on;  % Keep the plot for adding the fitted line
 plot(initial_position_vector, fitted_line, '-r');
 
 % Label the axes
-xlabel('z(t=0)');
+xlabel('Initial Position');
 ylabel('\Delta\phi');
 
 % Customizing y-axis to show multiples of pi
