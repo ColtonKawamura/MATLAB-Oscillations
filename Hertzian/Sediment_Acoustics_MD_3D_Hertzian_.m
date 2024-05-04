@@ -213,7 +213,7 @@ for nt = 1:Nt
     % Fy = Fy-K*(y-(Ly-D/2)).*(y>Ly-D/2);  % Top wall
 
     %     y=mod(y,Ly); %periodic boundaries for top and bottom
-
+ 
     Ek(nt) = 1/2*M*sum((vx).^2+(vy).^2);
     Ek(nt) = Ek(nt)/N;
     Ep(nt) = Ep(nt)/N;
