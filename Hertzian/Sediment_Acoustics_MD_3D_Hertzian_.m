@@ -83,9 +83,6 @@ neighbor_list_all = [];
 Dnm_list_all = [];
 
 for nn = 1:N
-    percent_done = nn/N*100;
-    fprintf('*** Currently %d percent done with building neighbor list. ***\n', percent_done);
-
     neighbor_list_nn = [];
     Dnm_list_nn = [];
 
@@ -126,10 +123,6 @@ bulk_list = ~(left_wall_list | right_wall_list);
 %% Main Loop
 % P = 0;
 for nt = 1:Nt
-    percent_done = nt/Nt*100;
-    fprintf('*** Currently %d percent done with simulation. ***\n', percent_done);
-
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%% First step in Verlet integration %%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -251,8 +244,12 @@ plot_title = sprintf('X Direction: f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f', driv
 [fitted_attenuation, wavenumber, wavespeed] = ...
 process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
 
+attenuation_x = fitted_attenuation;
+wavenumber_x = wavenumber;
+wavespeed_x = wavespeed;
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Y Direction Post Processing
+% % Z Direction Post Processing
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Convert simulation variables to meet function convention
@@ -267,6 +264,9 @@ plot_title = sprintf('Y Direction: f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f', driv
 [fitted_attenuation, wavenumber, wavespeed] = ...
 process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
 
+attenuation_z = fitted_attenuation;
+wavenumber_z = wavenumber;
+wavespeed_z = wavespeed;
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % Harmonic analysis
