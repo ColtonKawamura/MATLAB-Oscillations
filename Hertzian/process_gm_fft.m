@@ -1,30 +1,20 @@
-function process_gm_fft(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, x_position_particles)
+function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
 
 % Initialize output vectors
 initial_position_vector = [];
 amplitude_vector = [];
 phase_vector = [];
 cleaned_particle_index = [];
-initial_phase_offset = 0;
 
 iskip = 1;
 freq_match_tolerance = 0.05;
 
-time_vector = tvec;
-driving_frequency = omega_D/6.2832;
-index_particles = isort;
-index_oscillating_wall = left_wall_list;
-x_position_particles = x_all;
-driving_amplitude=A;
-
-
-for nn = particle_index(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, speeds things up
+for nn = index_particles(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, speeds things up
     if(~index_oscillating_wall(nn)) % Executes the following block only if the particle indexed by nn is not on the left wall.
-        x_position_nn = x_position_particles(nn,:); % extracts and stores the time_vector-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
+        position_nn = position_particles(nn,:); % extracts and stores the time_vector-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
        
-        if length(unique(x_position_nn))>10 % Checks if x_position_nn has more than 100 unique values AKA only process data that moves
-            fprintf('*** Doing fft fit  ***\n');
-            particle_position = x_position_nn;
+        if length(unique(position_nn))>10 % Checks if position_nn has more than 100 unique values AKA only process data that moves
+            particle_position = position_nn;
             average_dt = mean(diff(time_vector));
             sampling_freq = 1/average_dt;
             nyquist_freq = sampling_freq/2; % Nyquist frequency 
@@ -70,23 +60,29 @@ for nn = particle_index(1:iskip:end) % Sorts them by increments of iskip...for i
         end
     end
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Attenuation Fitting
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Wavenumber Fitting
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Semi log plot (because exponential)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Perform linear fit
 coefficients = polyfit(initial_position_vector, log(abs(amplitude_vector)), 1);
 
 % Extract fitted_attenuation and intercept
 fitted_attenuation = coefficients(1);
-intercept = coefficients(2);
+intercept_attenuation = coefficients(2);
 
 % Create a linear fit line
-fit_line = exp(intercept) * exp(initial_position_vector.*fitted_attenuation);
-
-% Convert coefficients to string
-equation_str = sprintf('y = %.4f * exp(%.4f)', exp(intercept), fitted_attenuation);
+fit_line = exp(intercept_attenuation) * exp(initial_position_vector.*fitted_attenuation);
 
 % Plot original data and linear fit
 figure;
@@ -95,9 +91,7 @@ hold on;
 semilogy(initial_position_vector, fit_line, 'r-', 'DisplayName', 'Linear Fit');
 xlabel('Distance');
 ylabel('Particle Oscillation Amplitude');
-% title('Linear Fit of Attenuation of Oscillation in Probes', 'FontSize', 16);
-    % Set the title with variables
-title(sprintf('f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f, alpha=%.2f', driving_frequency, kn, gamma_n, dimensionless_p, fitted_attenuation), 'FontSize', 12);
+title(plot_title, 'FontSize', 12);
 legend('show');
 grid on; 
 
@@ -108,22 +102,22 @@ hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 unwrapped_phase_vector = unwrap(phase_vector);
 
+% Fit a line to the data
+p = polyfit(initial_position_vector, unwrapped_phase_vector, 1);
+fitted_line = polyval(p, initial_position_vector);
+
+% Store the slope of the line as wavenumber
+wavenumber = p(1);
+wavespeed = driving_frequency/wavenumber;
+
 % Plot initial position vs. phase as dots
 figure;
 scatter(initial_position_vector, unwrapped_phase_vector, 'o');
 grid on;
 hold on;  % Keep the plot for adding the fitted line
 
-% Fit a line to the data
-p = polyfit(initial_position_vector, unwrapped_phase_vector, 1);
-fitted_line = polyval(p, initial_position_vector);
-
 % Plot the fitted line
 plot(initial_position_vector, fitted_line, '-r');
-
-% Store the slope of the line as wavenumber
-wavenumber = p(1);
-wavespeed = driving_frequency/wavenumber;
 
 % Label the axes
 xlabel('z(t=0)');
@@ -136,9 +130,8 @@ yticks = [ceil(y_min/pi)*pi:pi:floor(y_max/pi)*pi];  % Define y-ticks in steps o
 yticklabels = arrayfun(@(x) sprintf('%.2f\\pi', x/pi), yticks, 'UniformOutput', false);  % Create custom y-tick labels
 set(gca, 'YTick', yticks, 'YTickLabel', yticklabels);  % Apply custom ticks and labels
 
-
 % Set the title with variables
-title(sprintf('f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f, k=%.2f', driving_frequency, kn, gamma_n, dimensionless_p, wavenumber), 'FontSize', 12);
+title(plot_title, 'FontSize', 12);
 
 % Hold off to finish the plotting
 hold off;
