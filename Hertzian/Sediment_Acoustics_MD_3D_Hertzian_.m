@@ -241,6 +241,7 @@ driving_amplitude=A;
 position_particles = x_all;
 plot_title = sprintf('X Direction: f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f', driving_frequency, K, Bv, P);
 
+% Perform fft fitting
 [fitted_attenuation, wavenumber, wavespeed] = ...
 process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
 
@@ -253,14 +254,11 @@ wavespeed_x = wavespeed;
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Convert simulation variables to meet function convention
-time_vector = (1:Nt)*dt;
 [~,index_particles] = sort(z0);
-index_oscillating_wall = left_wall_list;
-driving_frequency = w_D/6.2832;
-driving_amplitude=A;
 position_particles = z_all;
-plot_title = sprintf('Y Direction: f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f', driving_frequency, K, Bv, P);
+plot_title = sprintf('Z Direction: f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f', driving_frequency, K, Bv, P);
 
+% Perform fft fitting
 [fitted_attenuation, wavenumber, wavespeed] = ...
 process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
 
