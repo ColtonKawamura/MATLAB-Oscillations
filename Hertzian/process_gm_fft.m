@@ -1,4 +1,22 @@
 function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
+% Purpose - finds attenuation, wavenumber, and wave speed for a ganular mechanics simulation.
+%
+% Format:   [fitted_attenuation, wavenumber, wavespeed] = ...
+%            process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
+%
+% Input:    plot_title             - whatever you want your plot title to say for attenuation and wavenumber plots.
+%           time_vector            - your time-series for that have the same length of position series
+%           index_particles        - index for each particle to be analyzed
+%           index_oscillating_wall - the index for particles that make up the oscillating wall
+%           driving_frequency      - frequency of the oscillating wall in units of inverse time
+%           driving_amplitude      - amplitude of wall in units of distance
+%           position_particles     - position-series for particles for whatever axis you want to analyze
+%
+% Output:   fitted_attenuation      - attenuation that was fit from the amplitude-distance relationship
+%           wavenumber              - wavenumber fit from the phase-distance relationship
+%           wavespeed              - wavespeed from wavespeed = frequency / wavenumber
+%
+% Note:     
 
 % Initialize output vectors
 initial_position_vector = [];
