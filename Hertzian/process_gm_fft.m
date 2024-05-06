@@ -98,7 +98,6 @@ hold on;
 semilogy(initial_position_vector, fit_line, 'r-', 'DisplayName', 'Linear Fit');
 xlabel('Distance');
 ylabel('Particle Oscillation Amplitude');
-title(plot_title, 'FontSize', 12);
 legend('show');
 grid on; 
 
