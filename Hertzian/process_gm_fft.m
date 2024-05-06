@@ -1,11 +1,10 @@
-function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
+function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
 % Purpose - finds attenuation, wavenumber, and wave speed for a ganular mechanics simulation.
 %
 % Format:   [fitted_attenuation, wavenumber, wavespeed] = ...
 %            process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
 %
-% Input:    plot_title             - whatever you want your plot title to say for attenuation and wavenumber plots.
-%           time_vector            - your time-series for that have the same length of position series
+% Input:    time_vector            - your time-series for that have the same length of position series
 %           index_particles        - index for each particle to be analyzed
 %           index_oscillating_wall - the index for particles that make up the oscillating wall
 %           driving_frequency      - frequency of the oscillating wall in units of inverse time
@@ -137,9 +136,6 @@ y_min = min(unwrapped_phase_vector);  % Get the minimum y value
 yticks = [ceil(y_min/pi)*pi:pi:floor(y_max/pi)*pi];  % Define y-ticks in steps of pi
 yticklabels = arrayfun(@(x) sprintf('%.2f\\pi', x/pi), yticks, 'UniformOutput', false);  % Create custom y-tick labels
 set(gca, 'YTick', yticks, 'YTickLabel', yticklabels);  % Apply custom ticks and labels
-
-% Set the title with variables
-title(plot_title, 'FontSize', 12);
 
 % Hold off to finish the plotting
 hold off;
