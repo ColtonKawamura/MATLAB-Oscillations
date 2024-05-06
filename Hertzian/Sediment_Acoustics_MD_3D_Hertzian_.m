@@ -256,12 +256,12 @@ wavespeed_x = wavespeed;
 % Convert simulation variables to meet function convention
 [~,index_particles] = sort(z0);
 position_particles = z_all;
-plot_title = sprintf('Z Direction: f=%.2f, k_n=%.2f, gamma_n=%.2f, P=%.2f', driving_frequency, K, Bv, P);
 
 % Perform fft fitting
 [fitted_attenuation, wavenumber, wavespeed] = ...
-process_gm_fft(plot_title, time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
+process_gm_fft(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
 
+% Change output to fit data requriments 
 attenuation_z = fitted_attenuation;
 wavenumber_z = wavenumber;
 wavespeed_z = wavespeed;
