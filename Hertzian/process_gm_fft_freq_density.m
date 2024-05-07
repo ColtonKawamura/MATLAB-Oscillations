@@ -1,4 +1,4 @@
-function process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles, position_particles_normal_to_oscillation)
+function process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles, initial_distance_from_oscillation)
     % Purpose - finds attenuation, wavenumber, and wave speed for a ganular mechanics simulation.
     %
     % Format:   [fitted_attenuation, wavenumber, wavespeed] = ...
@@ -25,9 +25,6 @@ sampling_freq = 1 / average_dt;
 nyquist_freq = sampling_freq / 2;  % Nyquist frequency 
 freq_vector = linspace(0, 1, fix(length(time_vector)/2)+1) * nyquist_freq;
 index_vector = 1:numel(freq_vector);
-
-% Extract inital positions normal to the oscillating wall for plotting
-distance_from_oscillation = position_particles_normal_to_oscillation(0);
 
 % Filter to only include frequencies below the cutoff
 freq_vector = freq_vector(freq_vector <= frequency_cutoff);
@@ -56,7 +53,7 @@ for nn = index_particles(1:iskip:end)  % Incremental index processing
                 amp_max = max(amp_max, max(normalized_fft_data_single_sided_nn));
                 
                 % Plot each frequency component
-                % initial_position_nn = position_nn(1);  % Initial position of the particle
+                distance_from_oscillation = initial_distance_from_oscillation(nn);  % Initial position of the particle
                 for mM = 1:length(freq_vector)
                     fprintf('Working on freq_vector %d', mM) % Testing purposes to make sure my computer isn't bricked
 
