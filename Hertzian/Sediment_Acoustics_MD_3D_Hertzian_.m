@@ -255,10 +255,15 @@ wavespeed_x = wavespeed;
 % Convert simulation variables to meet function convention
 [~,index_particles] = sort(z0);
 position_particles = z_all;
+position_particles_normal_to_oscillation = x_all;
+
+time_vector = (1:Nt)*dt;
+index_oscillating_wall = left_wall_list;
+driving_frequency = w_D/6.2832;
+driving_amplitude=A;
 
 % Perform fft fitting
-[fitted_attenuation, wavenumber, wavespeed] = ...
-process_gm_fft(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles)
+process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles, position_particles_normal_to_oscillation)
 
 % Change output to fit data requriments 
 attenuation_z = fitted_attenuation;
