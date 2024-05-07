@@ -42,7 +42,7 @@ for nn = index_particles(1:iskip:end)  % Incremental index processing
         position_nn = position_particles(nn, :);  % Extract position time-series for particle nn
         
         if length(unique(position_nn)) > 100  % Process only if significant movement
-            if max(position_nn) < position_cutoff
+            if max(initial_distance_from_oscillation(nn)) < position_cutoff
                 % Center and normalize the data
                 centered_data = position_nn - mean(position_nn);
                 normalized_fft_data = fft(centered_data) / length(time_vector);
@@ -77,7 +77,7 @@ title('Frequency Spectrum of Particles');
 colorbar;  % Shows the color scale
 colormap(cmap);  % Ensures the colorbar uses the same colormap
 caxis([amp_min, amp_max]);  % Set the colorbar's amplitude range
-xlim([0 5]);
-ylim([0,1.5]);
+xlim([0 max()]);
+ylim([0,max(freq_vector)]);
 grid on;
 hold off;
