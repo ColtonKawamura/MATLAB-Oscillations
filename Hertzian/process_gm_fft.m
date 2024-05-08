@@ -47,11 +47,8 @@ for nn = index_particles(1:iskip:end) % Sorts them by increments of iskip...for 
             [max_particle_amplitude, idx_max] = max(abs(normalized_fft_data(index_vector)) * 2);
             dominant_frequency = freq_vector(idx_max);
 
-            % Find the index of the frequency closest to driving frequency
-            desired_frequency = driving_frequency;
-
             % Find the index of the closest frequency to the desired frequency
-            [~, idx_driving_freq] = min(abs(freq_vector - desired_frequency));
+            [~, idx_driving_freq] = min(abs(freq_vector - driving_frequency));
 
             % Check if there is a peak around the desired frequency and amplitude is greater than 
             if idx_driving_freq > 1 && idx_driving_freq < numel(freq_vector) 
@@ -61,7 +58,7 @@ for nn = index_particles(1:iskip:end) % Sorts them by increments of iskip...for 
                 sign_slope_after = sign(normalized_fft_data(idx_driving_freq + 1) - normalized_fft_data(idx_driving_freq));
                 
                 % Check if the signs of the slopes are different and if the values on both sides are greater than the value at the desired frequency
-                if sign_slope_before ~= sign_slope_after && abs(normalized_fft_data(idx_driving_freq - 1)) < abs(normalized_fft_data(idx_driving_freq)) && abs(normalized_fft_data(idx_driving_freq + 1)) < abs(normalized_fft_data(idx_driving_freq)) && abs(dominant_frequency - desired_frequency) < freq_match_tolerance
+                if sign_slope_before ~= sign_slope_after && abs(normalized_fft_data(idx_driving_freq - 1)) < abs(normalized_fft_data(idx_driving_freq)) && abs(normalized_fft_data(idx_driving_freq + 1)) < abs(normalized_fft_data(idx_driving_freq)) && abs(dominant_frequency - driving_frequency) < freq_match_tolerance
                     %  fprintf('Peak found around the driving frequency. Storing data\n');
 
                     amplitude_vector = [amplitude_vector, max_particle_amplitude]; % Pulls amplitude from fft calculation
