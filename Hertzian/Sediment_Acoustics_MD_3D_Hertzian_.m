@@ -264,12 +264,7 @@ driving_frequency = w_D/6.2832;
 driving_amplitude=A;
 
 % Perform fft fitting
-process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles, initial_distance_from_oscillation)
-
-% Change output to fit data requriments 
-attenuation_z = fitted_attenuation;
-wavenumber_z = wavenumber;
-wavespeed_z = wavespeed;
+process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_amplitude, position_particles, initial_distance_from_oscillation)
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -287,4 +282,4 @@ driving_frequency = w_D/6.2832;
 driving_amplitude=A;
 
 % Perform fft fitting
-process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles, initial_distance_from_oscillation)
+process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_amplitude, position_particles, initial_distance_from_oscillation)
