@@ -17,6 +17,10 @@ function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vecto
 %
 % Note:     
 
+% Define the threshold frequency and flag
+threshold_frequency = 0.05;
+ignore_below_threshold = true; % Set to false to disable filtering
+
 % Initialize output vectors
 initial_position_vector = [];
 amplitude_vector = [];
@@ -25,7 +29,6 @@ cleaned_particle_index = [];
 
 iskip = 1;
 freq_match_tolerance = 0.05;
-
 
 % Pre Allocate for Speed
 average_dt = mean(diff(time_vector));
@@ -43,8 +46,14 @@ for nn = index_particles(1:iskip:end)
             centered_data = position_nn-mean(position_nn); %Center the data on zero for mean
             normalized_fft_data = fft(centered_data)/number_elements_time; 
 
-            % Using findpeaks to identify significant frequencies
-            [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data(1:length(freq_vector))) * 2, 'MinPeakProminence', 0); % Adjust 'MinPeakProminence' based on noise
+            % Adjust 'MinPeakProminence' based on noise and filter by threshold
+            if ignore_below_threshold
+                valid_indices = freq_vector >= threshold_frequency;
+                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data(valid_indices) * 2), 'MinPeakProminence', 0);
+                peak_locations = peak_locations + find(valid_indices, 1, 'first') - 1; % Adjust locations to original indexing
+            else
+                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data * 2), 'MinPeakProminence', 0);
+            end
 
             if ~isempty(peak_amplitudes)
                 [max_particle_amplitude, idx_max] = max(peak_amplitudes);
@@ -53,7 +62,10 @@ for nn = index_particles(1:iskip:end)
                 % Find the index of the closest frequency to the desired frequency
                 [~, idx_driving_freq] = min(abs(freq_vector - driving_frequency));
 
+                % makes sure driving frequency is within the range of spectrum
                 if idx_driving_freq > 1 && idx_driving_freq < numel(freq_vector) 
+
+                    % Only passes data that has a domininat frequency close to the driving frequency
                     if abs(dominant_frequency - driving_frequency) < freq_match_tolerance
                         amplitude_vector = [amplitude_vector, max_particle_amplitude]; 
                         initial_position_vector = [initial_position_vector, position_nn(1)];
