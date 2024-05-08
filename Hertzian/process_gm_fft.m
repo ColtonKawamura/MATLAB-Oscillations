@@ -92,7 +92,7 @@ intercept_attenuation = coefficients(2);
 fit_line = exp(intercept_attenuation) * exp(initial_position_vector.*fitted_attenuation);
 
 % Plot original data and linear fit
-figure;
+attenuation_figure_handle = figure;
 semilogy(initial_position_vector, abs(amplitude_vector), 'bo', 'DisplayName', 'Data');
 hold on;
 semilogy(initial_position_vector, fit_line, 'r-', 'DisplayName', 'Linear Fit');
@@ -100,7 +100,7 @@ xlabel('Distance');
 ylabel('Particle Oscillation Amplitude');
 legend('show');
 grid on; 
-
+savefig(attenuation_figure_handle, 'atttenuation_plot.fig');
 hold off;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
