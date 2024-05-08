@@ -33,6 +33,7 @@ sampling_freq = 1 / average_dt;
 nyquist_freq = sampling_freq / 2;  % Nyquist frequency 
 freq_vector = linspace(0, 1, fix(length(time_vector)/2)+1) * nyquist_freq;
 index_vector = 1:numel(freq_vector);
+number_elements_time = numel(time_vector);
 
 for nn = index_particles(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, speeds things up
     if(~index_oscillating_wall(nn)) % Executes the following block only if the particle indexed by nn is not on the left wall.
@@ -40,7 +41,6 @@ for nn = index_particles(1:iskip:end) % Sorts them by increments of iskip...for 
        
         if length(unique(position_nn))>10 % Checks if position_nn has more than 100 unique values AKA only process data that moves
             particle_position = position_nn; 
-            number_elements_time = numel(time_vector);
             centered_data = particle_position-mean(particle_position); %Center the data on zero for mean
             normalized_fft_data = fft(centered_data)/number_elements_time; 
 
