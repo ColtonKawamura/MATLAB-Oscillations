@@ -57,7 +57,7 @@ for nn = index_particles(1:iskip:end)
                     if abs(dominant_frequency - driving_frequency) < freq_match_tolerance
                         amplitude_vector = [amplitude_vector, max_particle_amplitude]; 
                         initial_position_vector = [initial_position_vector, position_nn(1)];
-                        phase_vector = [phase_vector, angle(normalized_fft_data(locs(idx_max)))];
+                        phase_vector = [phase_vector, angle(normalized_fft_data(idx_driving_freq))];
                         cleaned_particle_index = [cleaned_particle_index, nn];
                     end
                 end
