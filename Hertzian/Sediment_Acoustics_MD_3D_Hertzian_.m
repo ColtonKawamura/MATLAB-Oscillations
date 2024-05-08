@@ -260,7 +260,6 @@ initial_distance_from_oscillation = x0;
 
 time_vector = (1:Nt)*dt;
 index_oscillating_wall = left_wall_list;
-driving_frequency = w_D/6.2832;
 driving_amplitude=A;
 
 % Perform fft fitting
@@ -278,7 +277,6 @@ initial_distance_from_oscillation = x0;
 
 time_vector = (1:Nt)*dt;
 index_oscillating_wall = left_wall_list;
-driving_frequency = w_D/6.2832;
 driving_amplitude=A;
 
 % Perform fft fitting
