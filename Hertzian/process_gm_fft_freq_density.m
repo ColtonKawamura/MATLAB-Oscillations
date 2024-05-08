@@ -17,7 +17,7 @@ function process_gm_fft_freq_density(time_vector, index_particles, index_oscilla
 
 iskip = 1;
 frequency_cutoff = 2;  % Define the frequency cutoff
-position_cutoff = 3; % Distance cutoff
+position_cutoff = 6; % Distance cutoff
 
 % Pre Allocate for Speed
 average_dt = mean(diff(time_vector));
@@ -41,8 +41,8 @@ for nn = index_particles(1:iskip:end)  % Incremental index processing
     if ~index_oscillating_wall(nn)  % Ensure the particle is not on the oscillating wall
         position_nn = position_particles(nn, :);  % Extract position time-series for particle nn
         
-        if length(unique(position_nn)) > 100  % Process only if significant movement
-            if max(initial_distance_from_oscillation(nn)) < position_cutoff
+        if length(unique(position_nn)) > 10  % Process only if significant movement
+            if initial_distance_from_oscillation(nn) < position_cutoff
                 % Center and normalize the data
                 centered_data = position_nn - mean(position_nn);
                 normalized_fft_data = fft(centered_data) / length(time_vector);
@@ -55,7 +55,7 @@ for nn = index_particles(1:iskip:end)  % Incremental index processing
                 % Plot each frequency component
                 distance_from_oscillation = initial_distance_from_oscillation(nn);  % Initial position of the particle
                 for mM = 1:length(freq_vector)
-                    fprintf('Working on freq_vector %d', mM) % Testing purposes to make sure my computer isn't bricked
+                    % fprintf('Working on freq_vector %d', mM) % Testing purposes to make sure my computer isn't bricked
 
                     % Normalize amplitude to [1, 64] for colormap indexing. ceil() needed because MATLAB only lines integer values
                     amp_index = max(1, ceil(64 * (normalized_fft_data_single_sided_nn(mM) - amp_min) / (amp_max - amp_min))); % Shift amplitude to base at zero and normalize. Then scale by 64 to match color scale.
@@ -72,12 +72,12 @@ end
 %      'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'center', 'FontSize', 10, 'Color', 'black');
 
 xlabel('Initial Position from Oscillating Wall');
-ylabel('Frequency (Hz)');
+ylabel('Frequency (Inverse Time)');
 title('Frequency Spectrum of Particles');
 colorbar;  % Shows the color scale
 colormap(cmap);  % Ensures the colorbar uses the same colormap
 caxis([amp_min, amp_max]);  % Set the colorbar's amplitude range
-xlim([0 max()]);
+% xlim([0 max(initial_distance_from_oscillation)]);
 ylim([0,max(freq_vector)]);
 grid on;
 hold off;
