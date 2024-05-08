@@ -239,7 +239,7 @@ index_oscillating_wall = left_wall_list;
 driving_frequency = w_D/6.2832;
 driving_amplitude=A;
 position_particles = x_all;
-figure_handle = "x";
+figure_handle = 'x';
 
 % Perform fft fitting
 [fitted_attenuation, wavenumber, wavespeed] = ...
@@ -248,23 +248,6 @@ process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_fr
 attenuation_x = fitted_attenuation;
 wavenumber_x = wavenumber;
 wavespeed_x = wavespeed;
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Z Direction Post Processing
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Convert simulation variables to meet function convention
-[~,index_particles] = sort(z0);
-position_particles = z_all;
-initial_distance_from_oscillation = x0;
-
-time_vector = (1:Nt)*dt;
-index_oscillating_wall = left_wall_list;
-driving_amplitude=A;
-
-% Perform fft fitting
-process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_amplitude, position_particles, initial_distance_from_oscillation)
-
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % Y Direction Post Processing
@@ -281,3 +264,31 @@ driving_amplitude=A;
 
 % Perform fft fitting
 process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_amplitude, position_particles, initial_distance_from_oscillation)
+
+figure_handle = 'y';
+% Perform fft fitting
+[fitted_attenuation, wavenumber, wavespeed] = ...
+process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle)
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Z Direction Post Processing
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Convert simulation variables to meet function convention
+[~,index_particles] = sort(z0);
+position_particles = z_all;
+initial_distance_from_oscillation = x0;
+
+
+time_vector = (1:Nt)*dt;
+index_oscillating_wall = left_wall_list;
+driving_amplitude=A;
+
+% Perform fft fitting
+process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_amplitude, position_particles, initial_distance_from_oscillation)
+
+figure_handle = 'z';
+% Perform fft fitting
+[fitted_attenuation, wavenumber, wavespeed] = ...
+process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle)
