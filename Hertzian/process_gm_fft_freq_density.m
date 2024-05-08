@@ -1,4 +1,4 @@
-function process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_frequency, driving_amplitude, position_particles, initial_distance_from_oscillation)
+function process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_amplitude, position_particles, initial_distance_from_oscillation)
     % Purpose - finds attenuation, wavenumber, and wave speed for a ganular mechanics simulation.
     %
     % Format:   [fitted_attenuation, wavenumber, wavespeed] = ...
@@ -7,7 +7,6 @@ function process_gm_fft_freq_density(time_vector, index_particles, index_oscilla
     % Input:    time_vector            - your time-series for that have the same length of position series
     %           index_particles        - index for each particle to be analyzed
     %           index_oscillating_wall - the index for particles that make up the oscillating wall
-    %           driving_frequency      - frequency of the oscillating wall in units of inverse time
     %           driving_amplitude      - amplitude of wall in units of distance
     %           position_particles     - position-series for particles for whatever axis you want to analyze
     %
@@ -56,7 +55,7 @@ for nn = index_particles(1:iskip:end)  % Incremental index processing
                     % Normalize amplitude to [1, 64] for colormap indexing
                     amp_value = normalized_fft_data_single_sided_nn(mM);
                     amp_index = (amp_value - amp_min) / (amp_max - amp_min); % Normalize between 0 and 1
-                    amp_index = max(1, min(64, round(amp_index * 63) + 1)); % Scale to 1-64, avoiding index exceed
+                    amp_index = max(1, min(64, round(amp_index * 63) + 1)); % Scale to 1-64, avoiding index exceeding 64
                     plot(distance_from_oscillation, freq_vector(mM), 'o', 'Color', cmap(amp_index, :), 'MarkerFaceColor', cmap(amp_index, :));
 
                 end
