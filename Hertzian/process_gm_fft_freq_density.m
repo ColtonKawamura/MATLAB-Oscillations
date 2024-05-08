@@ -34,7 +34,7 @@ index_vector = index_vector(freq_vector <= frequency_cutoff);
 figure;
 hold on;
 cmap = jet(64);  % Colormap from blue to red
-amp_min = inf;
+amp_min = driving_amplitude;
 amp_max = 0;
 
 for nn = index_particles(1:iskip:end)  % Incremental index processing
@@ -49,8 +49,8 @@ for nn = index_particles(1:iskip:end)  % Incremental index processing
                 normalized_fft_data_single_sided_nn = abs(normalized_fft_data(index_vector)) * 2; % Doubled to change change from double sided (about f=0) to single sided
                 
                 % Update amplitude range for color mapping
-                amp_min = min(amp_min, min(normalized_fft_data_single_sided_nn));
-                amp_max = max(amp_max, max(normalized_fft_data_single_sided_nn));
+                % amp_min = min(amp_min, min(normalized_fft_data_single_sided_nn));
+                % amp_max = max(amp_max, max(normalized_fft_data_single_sided_nn));
                 
                 % Plot each frequency component
                 distance_from_oscillation = initial_distance_from_oscillation(nn);  % Initial position of the particle
