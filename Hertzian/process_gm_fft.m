@@ -24,7 +24,7 @@ phase_vector = [];
 cleaned_particle_index = [];
 
 iskip = 1;
-freq_match_tolerance = 0.05;
+freq_match_tolerance = 1;
 
 
 % Pre Allocate for Speed
@@ -40,8 +40,7 @@ for nn = index_particles(1:iskip:end) % Sorts them by increments of iskip...for 
         position_nn = position_particles(nn,:); % extracts and stores the time_vector-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
        
         if length(unique(position_nn))>10 % Checks if position_nn has more than 100 unique values AKA only process data that moves
-            particle_position = position_nn; 
-            centered_data = particle_position-mean(particle_position); %Center the data on zero for mean
+            centered_data = position_nn-mean(position_nn); %Center the data on zero for mean
             normalized_fft_data = fft(centered_data)/number_elements_time; 
 
             % Find the dominant frequency and its max amplitude
@@ -65,7 +64,7 @@ for nn = index_particles(1:iskip:end) % Sorts them by increments of iskip...for 
                     %  fprintf('Peak found around the driving frequency. Storing data\n');
 
                     amplitude_vector = [amplitude_vector, max_particle_amplitude]; % Pulls amplitude from fft calculation
-                    initial_position_vector = [initial_position_vector, particle_position(1)];
+                    initial_position_vector = [initial_position_vector, position_nn(1)];
                     phase_vector = [phase_vector, angle(normalized_fft_data(idx_driving_freq))];
                     cleaned_particle_index = [cleaned_particle_index, nn];
                 else
