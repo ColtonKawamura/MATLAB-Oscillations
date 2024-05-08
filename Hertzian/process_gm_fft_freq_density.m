@@ -38,18 +38,19 @@ amp_max = driving_amplitude;
 
 for nn = index_particles(1:iskip:end)  % Incremental index processing
     if ~index_oscillating_wall(nn)  % Ensure the particle is not on the oscillating wall
+
         position_nn = position_particles(nn, :);  % Extract position time-series for particle nn
         
         if length(unique(position_nn)) > 10  % Process only if significant movement
             if initial_distance_from_oscillation(nn) < position_cutoff
+
                 % Center and normalize the data
                 centered_data = position_nn - mean(position_nn);
                 normalized_fft_data = fft(centered_data) / length(time_vector);
                 normalized_fft_data_single_sided_nn = abs(normalized_fft_data(index_vector)) * 2; % Doubled to change change from double sided (about f=0) to single sided
-
-                
                 distance_from_oscillation = initial_distance_from_oscillation(nn);  % Initial position of the particle
-
+                % normalized_fft_data_single_sided_nn = log10(normalized_fft_data_single_sided_nn + 1);  % Adding 1 to avoid log10(0) for log amplitude
+                
                 for mM = 1:length(freq_vector)
 
                     % Normalize amplitude to [1, 64] for colormap indexing
@@ -75,7 +76,7 @@ title('Frequency Spectrum of Particles');
 colorbar;  % Shows the color scale
 colormap(cmap);  % Ensures the colorbar uses the same colormap
 clim([amp_min, amp_max]);  % Set the colorbar's amplitude range
-% xlim([0 max(initial_distance_from_oscillation)]);
 ylim([0,max(freq_vector)]);
+% set(gca, 'XScale', 'log');  % Set the y-axis to logarithmic scale, ensure y-values are not negative or 0
 grid on;
 hold off;
