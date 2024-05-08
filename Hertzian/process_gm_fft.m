@@ -51,22 +51,22 @@ for nn = index_particles(1:iskip:end) % Sorts them by increments of iskip...for 
             desired_frequency = driving_frequency;
 
             % Find the index of the closest frequency to the desired frequency
-            [~, idx_desired] = min(abs(freq_vector - desired_frequency));
+            [~, idx_driving_freq] = min(abs(freq_vector - desired_frequency));
 
             % Check if there is a peak around the desired frequency and amplitude is greater than 
-            if idx_desired > 1 && idx_desired < numel(freq_vector) 
+            if idx_driving_freq > 1 && idx_driving_freq < numel(freq_vector) 
                 %  fprintf('*** Checking for Slope  ***\n');
                 % Calculate the sign of the slope before and after the desired frequency
-                sign_slope_before = sign(normalized_fft_data(idx_desired) - normalized_fft_data(idx_desired - 1));
-                sign_slope_after = sign(normalized_fft_data(idx_desired + 1) - normalized_fft_data(idx_desired));
+                sign_slope_before = sign(normalized_fft_data(idx_driving_freq) - normalized_fft_data(idx_driving_freq - 1));
+                sign_slope_after = sign(normalized_fft_data(idx_driving_freq + 1) - normalized_fft_data(idx_driving_freq));
                 
                 % Check if the signs of the slopes are different and if the values on both sides are greater than the value at the desired frequency
-                if sign_slope_before ~= sign_slope_after && abs(normalized_fft_data(idx_desired - 1)) < abs(normalized_fft_data(idx_desired)) && abs(normalized_fft_data(idx_desired + 1)) < abs(normalized_fft_data(idx_desired)) && abs(dominant_frequency - desired_frequency) < freq_match_tolerance
+                if sign_slope_before ~= sign_slope_after && abs(normalized_fft_data(idx_driving_freq - 1)) < abs(normalized_fft_data(idx_driving_freq)) && abs(normalized_fft_data(idx_driving_freq + 1)) < abs(normalized_fft_data(idx_driving_freq)) && abs(dominant_frequency - desired_frequency) < freq_match_tolerance
                     %  fprintf('Peak found around the driving frequency. Storing data\n');
 
                     amplitude_vector = [amplitude_vector, max_particle_amplitude]; % Pulls amplitude from fft calculation
                     initial_position_vector = [initial_position_vector, particle_position(1)];
-                    phase_vector = [phase_vector, angle(normalized_fft_data(idx_desired))];
+                    phase_vector = [phase_vector, angle(normalized_fft_data(idx_driving_freq))];
                     cleaned_particle_index = [cleaned_particle_index, nn];
                 else
                     %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');
