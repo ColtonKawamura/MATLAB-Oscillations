@@ -24,7 +24,7 @@ phase_vector = [];
 cleaned_particle_index = [];
 
 iskip = 1;
-freq_match_tolerance = 0;
+freq_match_tolerance = 0.05;
 
 
 % Pre Allocate for Speed
