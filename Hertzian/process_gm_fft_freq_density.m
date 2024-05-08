@@ -32,7 +32,7 @@ index_vector = index_vector(freq_vector <= frequency_cutoff);
 % Initialize the plot
 figure;
 hold on;
-cmap = parula(64);  % Colormap from blue to red
+cmap = parula(64);  % Colormap color style
 amp_min = 0;
 amp_max = driving_amplitude;
 
