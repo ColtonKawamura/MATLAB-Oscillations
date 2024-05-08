@@ -240,10 +240,11 @@ driving_frequency = w_D/6.2832;
 driving_amplitude=A;
 position_particles = x_all;
 figure_handle = 'x';
+initial_distance_from_oscillation = x0;
 
 % Perform fft fitting
 [fitted_attenuation, wavenumber, wavespeed] = ...
-process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle)
+process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle, initial_distance_from_oscillation)
 
 attenuation_x = fitted_attenuation;
 wavenumber_x = wavenumber;
