@@ -74,7 +74,7 @@ ylabel('Frequency (Inverse Time)');
 title('Frequency Spectrum of Particles');
 colorbar;  % Shows the color scale
 colormap(cmap);  % Ensures the colorbar uses the same colormap
-caxis([amp_min, amp_max]);  % Set the colorbar's amplitude range
+clim([amp_min, amp_max]);  % Set the colorbar's amplitude range
 % xlim([0 max(initial_distance_from_oscillation)]);
 ylim([0,max(freq_vector)]);
 grid on;
