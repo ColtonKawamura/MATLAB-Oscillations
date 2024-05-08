@@ -44,11 +44,11 @@ for nn = index_particles(1:iskip:end)
             normalized_fft_data = fft(centered_data)/number_elements_time; 
 
             % Using findpeaks to identify significant frequencies
-            [pks, locs] = findpeaks(abs(normalized_fft_data(1:length(freq_vector))) * 2, 'MinPeakProminence', 0); % Adjust 'MinPeakProminence' based on noise
+            [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data(1:length(freq_vector))) * 2, 'MinPeakProminence', 0); % Adjust 'MinPeakProminence' based on noise
 
-            if ~isempty(pks)
-                [max_particle_amplitude, idx_max] = max(pks);
-                dominant_frequency = freq_vector(locs(idx_max));
+            if ~isempty(peak_amplitudes)
+                [max_particle_amplitude, idx_max] = max(peak_amplitudes);
+                dominant_frequency = freq_vector(peak_locations(idx_max));
 
                 % Find the index of the closest frequency to the desired frequency
                 [~, idx_driving_freq] = min(abs(freq_vector - driving_frequency));
