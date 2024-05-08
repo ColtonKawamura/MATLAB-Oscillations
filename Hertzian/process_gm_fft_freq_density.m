@@ -50,14 +50,14 @@ for nn = index_particles(1:iskip:end)  % Incremental index processing
                 normalized_fft_data_single_sided_nn = abs(normalized_fft_data(index_vector)) * 2; % Doubled to change change from double sided (about f=0) to single sided
                 distance_from_oscillation = initial_distance_from_oscillation(nn);  % Initial position of the particle
                 % normalized_fft_data_single_sided_nn = log10(normalized_fft_data_single_sided_nn + 1);  % Adding 1 to avoid log10(0) for log amplitude
-                
+
                 for mM = 1:length(freq_vector)
 
                     % Normalize amplitude to [1, 64] for colormap indexing
                     amp_value = normalized_fft_data_single_sided_nn(mM);
                     amp_index = (amp_value - amp_min) / (amp_max - amp_min); % Normalize between 0 and 1
                     amp_index = max(1, min(64, round(amp_index * 63) + 1)); % Scale to 1-64, avoiding index exceeding 64
-                    plot(distance_from_oscillation, freq_vector(mM), 'o', 'Color', cmap(amp_index, :), 'MarkerFaceColor', cmap(amp_index, :));
+                    plot(distance_from_oscillation, freq_vector(mM), 'o', 'Color', cmap(amp_index, :), 'MarkerFaceColor', cmap(amp_index, :)); %cmap(row = which color, all columns = full RGB for that row-color)
 
                 end
             end
