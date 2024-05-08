@@ -34,8 +34,8 @@ index_vector = index_vector(freq_vector <= frequency_cutoff);
 figure;
 hold on;
 cmap = jet(64);  % Colormap from blue to red
-amp_min = driving_amplitude;
-amp_max = 0;
+amp_min = 0;
+amp_max = driving_amplitude;
 
 for nn = index_particles(1:iskip:end)  % Incremental index processing
     if ~index_oscillating_wall(nn)  % Ensure the particle is not on the oscillating wall
