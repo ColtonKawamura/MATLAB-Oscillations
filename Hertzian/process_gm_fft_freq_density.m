@@ -47,19 +47,18 @@ for nn = index_particles(1:iskip:end)  % Incremental index processing
                 centered_data = position_nn - mean(position_nn);
                 normalized_fft_data = fft(centered_data) / length(time_vector);
                 normalized_fft_data_single_sided_nn = abs(normalized_fft_data(index_vector)) * 2; % Doubled to change change from double sided (about f=0) to single sided
-                
-                % Update amplitude range for color mapping
-                % amp_min = min(amp_min, min(normalized_fft_data_single_sided_nn));
-                % amp_max = max(amp_max, max(normalized_fft_data_single_sided_nn));
-                
-                % Plot each frequency component
-                distance_from_oscillation = initial_distance_from_oscillation(nn);  % Initial position of the particle
-                for mM = 1:length(freq_vector)
-                    % fprintf('Working on freq_vector %d', mM) % Testing purposes to make sure my computer isn't bricked
 
-                    % Normalize amplitude to [1, 64] for colormap indexing. ceil() needed because MATLAB only lines integer values
-                    amp_index = max(1, ceil(64 * (normalized_fft_data_single_sided_nn(mM) - amp_min) / (amp_max - amp_min))); % Shift amplitude to base at zero and normalize. Then scale by 64 to match color scale.
+                
+                distance_from_oscillation = initial_distance_from_oscillation(nn);  % Initial position of the particle
+
+                for mM = 1:length(freq_vector)
+
+                    % Normalize amplitude to [1, 64] for colormap indexing
+                    amp_value = normalized_fft_data_single_sided_nn(mM);
+                    amp_index = (amp_value - amp_min) / (amp_max - amp_min); % Normalize between 0 and 1
+                    amp_index = max(1, min(64, round(amp_index * 63) + 1)); % Scale to 1-64, avoiding index exceed
                     plot(distance_from_oscillation, freq_vector(mM), 'o', 'Color', cmap(amp_index, :), 'MarkerFaceColor', cmap(amp_index, :));
+
                 end
             end
         end
