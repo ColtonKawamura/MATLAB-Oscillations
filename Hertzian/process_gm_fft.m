@@ -1,4 +1,4 @@
-function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle)
+function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle, initial_distance_from_oscillation)
 % Purpose - finds attenuation, wavenumber, and wave speed for a ganular mechanics simulation.
 %
 % Format:   [fitted_attenuation, wavenumber, wavespeed] = ...
@@ -13,12 +13,12 @@ function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vecto
 %
 % Output:   fitted_attenuation      - attenuation that was fit from the amplitude-distance relationship
 %           wavenumber              - wavenumber fit from the phase-distance relationship
-%           wavespeed              - wavespeed from wavespeed = frequency / wavenumber
+%           wavespeed               - wavespeed from wavespeed = frequency / wavenumber
 %
 % Note:     
 
 % Define the threshold frequency and flag
-threshold_frequency = 0.05;
+threshold_frequency = 0.8;
 ignore_below_threshold = true; % Set to false to disable filtering
 
 % Initialize output vectors
@@ -46,13 +46,13 @@ for nn = index_particles(1:iskip:end)
             centered_data = position_nn-mean(position_nn); %Center the data on zero for mean
             normalized_fft_data = fft(centered_data)/number_elements_time; 
 
-            % Adjust 'MinPeakProminence' based on noise and filter by threshold
+            % If you want to ignore frequencies below a certain threshold, only take those at or above the threshold
             if ignore_below_threshold
                 valid_indices = freq_vector >= threshold_frequency;
                 [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data(valid_indices) * 2), 'MinPeakProminence', 0);
                 peak_locations = peak_locations + find(valid_indices, 1, 'first') - 1; % Adjust locations to original indexing
             else
-                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data * 2), 'MinPeakProminence', 0);
+                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data * 2), 'MinPeakProminence', 0); % Adjust 'MinPeakProminence' based on noise
             end
 
             if ~isempty(peak_amplitudes)
@@ -68,7 +68,7 @@ for nn = index_particles(1:iskip:end)
                     % Only passes data that has a domininat frequency close to the driving frequency
                     if abs(dominant_frequency - driving_frequency) < freq_match_tolerance
                         amplitude_vector = [amplitude_vector, max_particle_amplitude]; 
-                        initial_position_vector = [initial_position_vector, position_nn(1)];
+                        initial_position_vector = [initial_position_vector, initial_distance_from_oscillation(nn)];
                         phase_vector = [phase_vector, angle(normalized_fft_data(idx_driving_freq))];
                         cleaned_particle_index = [cleaned_particle_index, nn];
                     end
