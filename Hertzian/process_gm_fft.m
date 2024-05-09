@@ -18,7 +18,7 @@ function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vecto
 % Note:     
 
 % Define the threshold frequency and flag
-threshold_frequency = 0.8;
+threshold_frequency = 0.05;
 ignore_below_threshold = true; % Set to false to disable filtering
 
 % Initialize output vectors
@@ -28,7 +28,7 @@ phase_vector = [];
 cleaned_particle_index = [];
 
 iskip = 1;
-freq_match_tolerance = 0.05;
+freq_match_tolerance = 0.2;
 
 % Pre Allocate for Speed
 average_dt = mean(diff(time_vector));
@@ -40,18 +40,21 @@ number_elements_time = numel(time_vector);
 
 for nn = index_particles(1:iskip:end)
     if(~index_oscillating_wall(nn))
-        
+
         position_nn = position_particles(nn,:); 
        
         if length(unique(position_nn))>10
+
             centered_data = position_nn-mean(position_nn); %Center the data on zero for mean
             normalized_fft_data = fft(centered_data)/number_elements_time; 
 
             % If you want to ignore frequencies below a certain threshold, only take those at or above the threshold
             if ignore_below_threshold
-                valid_indices = freq_vector >= threshold_frequency;
-                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data(valid_indices) * 2), 'MinPeakProminence', 0);
-                peak_locations = peak_locations + find(valid_indices, 1, 'first') - 1; % Adjust locations to original indexing
+
+                valid_indices = freq_vector >= threshold_frequency; % Shave off the indices that are below the threshold
+                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data(valid_indices) * 2), 'MinPeakProminence', 0); % Find the peaks within some Minimum Prominence
+                % Now need to shift found peaks back to their original index before threshold
+                peak_locations = peak_locations + find(valid_indices, 1, 'first') - 1; % find(..) tells you where your filtered data starts relative to the original full dataset. -1 because Matlab starts at 1 index
             else
                 [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data * 2), 'MinPeakProminence', 0); % Adjust 'MinPeakProminence' based on noise
             end

@@ -46,13 +46,11 @@ number_elements_time = numel(time_vector);
 average_dt = mean(diff(time_vector));
 sampling_freq = 1 / average_dt;
 nyquist_freq = sampling_freq / 2;
-
 % FFT and Frequency Vector Setup
 freq_vector = linspace(0, nyquist_freq, floor(number_elements_time/2)+1);
 centered_data = position_nn - mean(position_nn);
 normalized_fft_data = fft(centered_data) / number_elements_time;
 magnitude_spectrum = abs(normalized_fft_data(1:floor(end/2)+1)) * 2;
-
 % Plot the frequency spectrum
 figure;
 plot(freq_vector, magnitude_spectrum);
