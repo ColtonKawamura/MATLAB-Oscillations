@@ -40,6 +40,7 @@ number_elements_time = numel(time_vector);
 
 for nn = index_particles(1:iskip:end)
     if(~index_oscillating_wall(nn))
+        
         position_nn = position_particles(nn,:); 
        
         if length(unique(position_nn))>10
