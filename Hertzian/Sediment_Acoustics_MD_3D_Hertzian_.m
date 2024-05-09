@@ -16,8 +16,8 @@
 % % % Manual variables for troubleshooting
 K = 100;
 M = 1;
-Bv = 1;
-w_D = 6.28;
+Bv = .2;
+w_D = 3.14;
 Nt =5000;
 N = 10000;
 P=0.05;

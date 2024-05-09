@@ -18,7 +18,7 @@ function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vecto
 % Note:     
 
 % Define the threshold frequency and flag
-threshold_frequency = 0.05;
+threshold_frequency = 1E-3;
 ignore_below_threshold = true; % Set to false to disable filtering
 
 % Initialize output vectors
@@ -52,7 +52,7 @@ for nn = index_particles(1:iskip:end)
             if ignore_below_threshold
 
                 valid_indices = freq_vector >= threshold_frequency; % Shave off the indices that are below the threshold
-                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data(valid_indices) * 2), 'MinPeakProminence', 0); % Find the peaks within some Minimum Prominence
+                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data(valid_indices) * 2), 'MinPeakProminence', 5E-5); % Find the peaks within some Minimum Prominence
                 % Now need to shift found peaks back to their original index before threshold
                 peak_locations = peak_locations + find(valid_indices, 1, 'first') - 1; % find(..) tells you where your filtered data starts relative to the original full dataset. -1 because Matlab starts at 1 index
             else
