@@ -8,13 +8,14 @@ function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vecto
 %           index_particles                      - index for each particle to be analyzed
 %           index_oscillating_wall               - the index for particles that make up the oscillating wall
 %           driving_frequency                    - frequency of the oscillating wall in units of inverse time
-%           figure_handle                        - which axsis you are looking at, for figure saving purposes
+%           figure_handle                        - which axis you are looking at, for figure saving purposes
 %           position_particles                   - position-series for particles for whatever axis you want to analyze
 %           initial_distance_from_oscillation    - distance to the particle on the axis normal to oscillating wall (if oscillating in x, this is each particles initial x-position)
 %
-% Output:   fitted_attenuation      - attenuation that was fit from the amplitude-distance relationship
-%           wavenumber              - wavenumber fit from the phase-distance relationship
-%           wavespeed               - wavespeed from wavespeed = frequency / wavenumber
+% Output:   fitted_attenuation       - attenuation that was fit from the amplitude-distance relationship
+%           wavenumber               - wavenumber fit from the phase-distance relationship
+%           wavespeed                - wavespeed from wavespeed = frequency / wavenumber
+%           {}_attenuation_plot.fig  - plot of the attenuation where {} is whatever you put for your figure_handle input
 %
 % Note:     Dial in your criteria for clean data with below parameters
 
