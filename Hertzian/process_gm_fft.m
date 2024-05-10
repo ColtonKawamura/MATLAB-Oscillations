@@ -102,7 +102,7 @@ handle_figure = figure;
 semilogy(initial_position_vector, abs(amplitude_vector), 'bo', 'DisplayName', 'Data');
 hold on;
 semilogy(initial_position_vector, fit_line, 'r-', 'DisplayName', 'Linear Fit');
-xlabel('Distance');
+xlabel('Distance from Oscillation (Particle Diamters)');
 ylabel('Particle Oscillation Amplitude');
 legend('show');
 grid on; 
@@ -133,7 +133,7 @@ hold on;  % Keep the plot for adding the fitted line
 plot(initial_position_vector, fitted_line, '-r');
 
 % Label the axes
-xlabel('Initial Position');
+xlabel('Distance from Oscillation (Particle Diamters)');
 ylabel('\Delta\phi');
 
 % Customizing y-axis to show multiples of pi

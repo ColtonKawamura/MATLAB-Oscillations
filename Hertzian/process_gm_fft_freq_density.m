@@ -70,7 +70,7 @@ end
 % text(mean(xlim), driving_frequency, sprintf(' Driving Frequency: %.2f Hz', driving_frequency), ...
 %      'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'center', 'FontSize', 10, 'Color', 'black');
 
-xlabel('Initial Position from Oscillating Wall');
+xlabel('Initial Position from Oscillating Wall (Particle Diamters)');
 ylabel('Frequency (Inverse Time)');
 title('Frequency Spectrum of Particles');
 colorbar;  % Shows the color scale
