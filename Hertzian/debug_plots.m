@@ -38,7 +38,7 @@ ylabel('Count');
 grid on;
 
 % Find the index closest to x_0=target
-target = 1.55; [~, nn]= min(abs(x0-target))
+target = 42.723; [~, nn]= min(abs(x0-target))
 figure; plot(time_vector, y_all(nn,:))
 
 % Calculate the number of elements and sampling frequency
