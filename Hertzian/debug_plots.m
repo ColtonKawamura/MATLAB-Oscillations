@@ -1,5 +1,5 @@
 figure; % Create a new figure window
-stem(freq_vector, abs(normalized_fft_data(index_vector)) * 2); % Plot the frequency spectrum
+stem(freq_vector, abs(normalized_fft_data) * 2); % Plot the frequency spectrum
 xlabel('Frequency (Hz)'); % Label the x-axis
 ylabel('Amplitude'); % Label the y-axis
 title('Frequency Spectrum'); % Title for the plot
@@ -35,4 +35,26 @@ bar(x, n);  % Plot as bar chart
 title('Histogram of Frequencies','FontSize', 12);
 xlabel('Frequency (Hz)');
 ylabel('Count');
+grid on;
+
+% Find the index closest to x_0=target
+target = 42.723; [~, nn]= min(abs(x0-target))
+figure; plot(time_vector, y_all(nn,:))
+
+% Calculate the number of elements and sampling frequency
+number_elements_time = numel(time_vector);
+average_dt = mean(diff(time_vector));
+sampling_freq = 1 / average_dt;
+nyquist_freq = sampling_freq / 2;
+% FFT and Frequency Vector Setup
+freq_vector = linspace(0, nyquist_freq, floor(number_elements_time/2)+1);
+centered_data = position_nn - mean(position_nn);
+normalized_fft_data = fft(centered_data) / number_elements_time;
+magnitude_spectrum = abs(normalized_fft_data(1:floor(end/2)+1)) * 2;
+% Plot the frequency spectrum
+figure;
+plot(freq_vector, magnitude_spectrum);
+title(['Frequency Spectrum for Particle at Index ' num2str(nn)]);
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
 grid on;

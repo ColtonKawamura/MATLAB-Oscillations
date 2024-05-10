@@ -1,4 +1,4 @@
-function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle)
+function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle, initial_distance_from_oscillation)
 % Purpose - finds attenuation, wavenumber, and wave speed for a ganular mechanics simulation.
 %
 % Format:   [fitted_attenuation, wavenumber, wavespeed] = ...
@@ -13,9 +13,13 @@ function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vecto
 %
 % Output:   fitted_attenuation      - attenuation that was fit from the amplitude-distance relationship
 %           wavenumber              - wavenumber fit from the phase-distance relationship
-%           wavespeed              - wavespeed from wavespeed = frequency / wavenumber
+%           wavespeed               - wavespeed from wavespeed = frequency / wavenumber
 %
 % Note:     
+
+% Define the threshold frequency and flag
+threshold_frequency = 1E-3;
+ignore_below_threshold = true; % Set to false to disable filtering
 
 % Initialize output vectors
 initial_position_vector = [];
@@ -35,47 +39,50 @@ freq_vector = linspace(0, 1, fix(length(time_vector)/2)+1) * nyquist_freq;
 index_vector = 1:numel(freq_vector);
 number_elements_time = numel(time_vector);
 
-for nn = index_particles(1:iskip:end) % Sorts them by increments of iskip...for iskip>1, speeds things up
-    if(~index_oscillating_wall(nn)) % Executes the following block only if the particle indexed by nn is not on the left wall.
-        position_nn = position_particles(nn,:); % extracts and stores the time_vector-series positions of the particle indexed by nn from the array x_all AKA looks at and picks out 
+for nn = index_particles(1:iskip:end)
+    if(~index_oscillating_wall(nn))
+
+        position_nn = position_particles(nn,:); 
        
-        if length(unique(position_nn))>10 % Checks if position_nn has more than 100 unique values AKA only process data that moves
+        if length(unique(position_nn))>10
+
             centered_data = position_nn-mean(position_nn); %Center the data on zero for mean
             normalized_fft_data = fft(centered_data)/number_elements_time; 
 
-            % Find the dominant frequency and its max amplitude
-            %   Need to double it because when signal is centered, power is
-            %   distributed in both positive and negative. double the abs accounts for this
-            [max_particle_amplitude, idx_max] = max(abs(normalized_fft_data(index_vector)) * 2);
-            dominant_frequency = freq_vector(idx_max);
+            % If you want to ignore frequencies below a certain threshold, only take those at or above the threshold
+            if ignore_below_threshold
 
-            % Find the index of the closest frequency to the desired frequency
-            [~, idx_driving_freq] = min(abs(freq_vector - driving_frequency));
-
-            % Check if there is a peak around the desired frequency and amplitude is greater than 
-            if idx_driving_freq > 1 && idx_driving_freq < numel(freq_vector) 
-                %  fprintf('*** Checking for Slope  ***\n');
-                % Calculate the sign of the slope before and after the desired frequency
-                sign_slope_before = sign(normalized_fft_data(idx_driving_freq) - normalized_fft_data(idx_driving_freq - 1));
-                sign_slope_after = sign(normalized_fft_data(idx_driving_freq + 1) - normalized_fft_data(idx_driving_freq));
-                
-                % Check if the signs of the slopes are different and if the values on both sides are greater than the value at the desired frequency
-                if sign_slope_before ~= sign_slope_after && abs(normalized_fft_data(idx_driving_freq - 1)) < abs(normalized_fft_data(idx_driving_freq)) && abs(normalized_fft_data(idx_driving_freq + 1)) < abs(normalized_fft_data(idx_driving_freq)) && abs(dominant_frequency - driving_frequency) < freq_match_tolerance
-                    %  fprintf('Peak found around the driving frequency. Storing data\n');
-
-                    amplitude_vector = [amplitude_vector, max_particle_amplitude]; % Pulls amplitude from fft calculation
-                    initial_position_vector = [initial_position_vector, position_nn(1)];
-                    phase_vector = [phase_vector, angle(normalized_fft_data(idx_driving_freq))];
-                    cleaned_particle_index = [cleaned_particle_index, nn];
-                else
-                    %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');
-                end
+                valid_indices = freq_vector >= threshold_frequency; % Shave off the indices that are below the threshold
+                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data(valid_indices) * 2), 'MinPeakProminence', 5E-5); % Find the peaks within some Minimum Prominence
+                % Now need to shift found peaks back to their original index before threshold
+                peak_locations = peak_locations + find(valid_indices, 1, 'first') - 1; % find(..) tells you where your filtered data starts relative to the original full dataset. -1 because Matlab starts at 1 index
             else
-                %  fprintf('*** Alert: No peak found around the driving frequency. ***\n');
+                [peak_amplitudes, peak_locations] = findpeaks(abs(normalized_fft_data * 2), 'MinPeakProminence', 0); % Adjust 'MinPeakProminence' based on noise
+            end
+
+            if ~isempty(peak_amplitudes)
+                [max_particle_amplitude, idx_max] = max(peak_amplitudes);
+                dominant_frequency = freq_vector(peak_locations(idx_max));
+
+                % Find the index of the closest frequency to the desired frequency
+                [~, idx_driving_freq] = min(abs(freq_vector - driving_frequency));
+
+                % makes sure driving frequency is within the range of spectrum
+                if idx_driving_freq > 1 && idx_driving_freq < numel(freq_vector) 
+
+                    % Only passes data that has a domininat frequency close to the driving frequency
+                    if abs(dominant_frequency - driving_frequency) < freq_match_tolerance
+                        amplitude_vector = [amplitude_vector, max_particle_amplitude]; 
+                        initial_position_vector = [initial_position_vector, initial_distance_from_oscillation(nn)];
+                        phase_vector = [phase_vector, angle(normalized_fft_data(idx_driving_freq))];
+                        cleaned_particle_index = [cleaned_particle_index, nn];
+                    end
+                end
             end
         end
     end
 end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Attenuation Fitting and Plotting
@@ -99,7 +106,7 @@ xlabel('Distance');
 ylabel('Particle Oscillation Amplitude');
 legend('show');
 grid on; 
-figure_name = [figure_handle, '_attenuation_plot.fig']
+figure_name = [figure_handle, '_attenuation_plot.fig'];
 savefig(handle_figure, figure_name);
 hold off;
 

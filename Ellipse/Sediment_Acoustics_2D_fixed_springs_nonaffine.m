@@ -103,7 +103,7 @@ right_wall_list = (x>Lx-Dn/2);
 bulk_list = ~(left_wall_list | right_wall_list);
 
 %% Main Loop
-P = 0; % Why change the pressure? To "relax" the packing before 
+P = 0; % Why change the pressure? To "relax" the packing before?
 for nt = 1:Nt
 
 

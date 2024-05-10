@@ -16,8 +16,8 @@
 % % % Manual variables for troubleshooting
 K = 100;
 M = 1;
-Bv = 1;
-w_D = 6.28;
+Bv = .2;
+w_D = 3.14;
 Nt =5000;
 N = 10000;
 P=0.05;
@@ -240,10 +240,11 @@ driving_frequency = w_D/6.2832;
 driving_amplitude=A;
 position_particles = x_all;
 figure_handle = 'x';
+initial_distance_from_oscillation = x0;
 
 % Perform fft fitting
 [fitted_attenuation, wavenumber, wavespeed] = ...
-process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle)
+process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle, initial_distance_from_oscillation)
 
 attenuation_x = fitted_attenuation;
 wavenumber_x = wavenumber;
@@ -262,13 +263,13 @@ time_vector = (1:Nt)*dt;
 index_oscillating_wall = left_wall_list;
 driving_amplitude=A;
 
-% Perform fft fitting
+% Perform fft density fit
 process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_amplitude, position_particles, initial_distance_from_oscillation)
 
 figure_handle = 'y';
 % Perform fft fitting
 [fitted_attenuation, wavenumber, wavespeed] = ...
-process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle)
+process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle, initial_distance_from_oscillation)
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
