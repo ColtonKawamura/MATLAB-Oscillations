@@ -20,7 +20,7 @@ function [fitted_attenuation, wavenumber, wavespeed] = process_gm_fft(time_vecto
 % Note:     Dial in your criteria for clean data with below parameters
 
 % Define the threshold frequency and flag
-threshold_frequency = 1E-3;
+threshold_frequency = .05*driving_frequency; % disregards frequencies less than 10 percent of driving frequency
 ignore_below_threshold = true; % Set to false to disable filtering
 
 % Define minimum peak amplitude / prominence to count as "good"
@@ -109,7 +109,7 @@ handle_figure = figure;
 semilogy(initial_position_vector, abs(amplitude_vector), 'bo', 'DisplayName', 'Data');
 hold on;
 semilogy(initial_position_vector, fit_line, 'r-', 'DisplayName', 'Linear Fit');
-xlabel('Distance from Oscillation (Particle Diamters)');
+xlabel('Distance from Oscillation (Particle Diameters)');
 ylabel('Particle Oscillation Amplitude');
 legend('show');
 grid on; 
@@ -140,7 +140,7 @@ hold on;  % Keep the plot for adding the fitted line
 plot(initial_position_vector, fitted_line, '-r');
 
 % Label the axes
-xlabel('Distance from Oscillation (Particle Diamters)');
+xlabel('Distance from Oscillation (Particle Diameters)');
 ylabel('\Delta\phi');
 
 % Customizing y-axis to show multiples of pi
