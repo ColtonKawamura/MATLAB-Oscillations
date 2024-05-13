@@ -207,6 +207,63 @@ end
 
 %%%%% Post Processing %%%%%
 
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % X Direction Post Processing
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Convert simulation variables to meet function convention
+time_vector = (1:Nt)*dt;
+[~,index_particles] = sort(x0);
+index_oscillating_wall = left_wall_list;
+driving_frequency = w_D/6.2832;
+driving_amplitude=A;
+position_particles = x_all;
+figure_handle = 'x';
+initial_distance_from_oscillation = x0;
+
+% Perform fft fitting
+[fitted_attenuation, wavenumber, wavespeed] = ...
+process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle, initial_distance_from_oscillation)
+
+attenuation_x = fitted_attenuation;
+wavenumber_x = wavenumber;
+wavespeed_x = wavespeed;
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Y Direction Post Processing
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Convert simulation variables to meet function convention
+time_vector = (1:Nt)*dt;
+index_oscillating_wall = left_wall_list;
+driving_amplitude=A;
+[~,index_particles] = sort(y0);
+position_particles = y_all;
+initial_distance_from_oscillation = x0;
+figure_handle = 'y';
+driving_frequency = w_D/6.2832;
+
+% Perform fft fitting
+[fitted_attenuation, wavenumber, wavespeed] = ...
+process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle, initial_distance_from_oscillation)
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % delta_Y / delta_X Post Processing
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Convert simulation variables to meet function convention
+time_vector = (1:Nt)*dt;
+[~,index_particles] = sort(y0);
+position_particles = y_all./x_all;
+initial_distance_from_oscillation = x0;
+figure_handle = 'y_over_x';
+
+% Perform fft fitting
+[fitted_attenuation, wavenumber, wavespeed] = ...
+process_gm_fft( time_vector, index_particles, index_oscillating_wall, driving_frequency, position_particles, figure_handle, initial_distance_from_oscillation)
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Snapshot of xy displacement for particles at ilist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
