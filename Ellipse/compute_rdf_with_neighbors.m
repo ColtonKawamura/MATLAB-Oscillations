@@ -19,7 +19,7 @@ num_timesteps = length(time_vector);
 
 % Area of the circle with radius r_max (for normalization in 2D)
 area_max = pi * r_max^2;
-particle_density = num_particles / area_max; % Number density
+density_particles_in_area = num_particles / area_max; % Number density
 
 % Define distance bins
 r = 0:dr:r_max; % determines the radial sections that r_max is divided into
@@ -28,28 +28,30 @@ g_r = zeros(size(r)); % initalizes g_r and it's sections
 % Compute pair distances using neighbor list for each time step
 for t = 1:num_timesteps
     for nn = 1:num_particles
-        particle_pos = [x_all(nn, t), y_all(nn, t)];
+        particle_position = [x_all(nn, t), y_all(nn, t)];
         neighbors = neighbor_list_all{nn};
         
-        for j = neighbors
-            if j > nn % To avoid double-counting pairs, works since we are starting from nn = 1
-                neighbor_pos = [x_all(j, t), y_all(j, t)];
-                distance_to_neighbor = norm(particle_pos - neighbor_pos);
+        for mm = neighbors
+            if mm > nn % To avoid double-counting pairs, works since we are starting from nn = 1
+                neighbor_position = [x_all(mm, t), y_all(mm, t)];
+                distance_to_neighbor = norm(particle_position - neighbor_position);
                 if distance_to_neighbor < r_max
-                    bin_index = floor(distance_to_neighbor / dr) + 1; % Need to +1 because MATLAB starts at index = 1, so index=0 needs to shift to 1.
-                    g_r(bin_index) = g_r(bin_index) + 2; % Each pair contributes to the count 
+                    bin_index = floor(distance_to_neighbor / dr) + 1; % divides the distance into dr sections and bins into the lowest one. +1 because there's no 0 bin
+                    g_r(bin_index) = g_r(bin_index) + 1; % +1 count this as a pair and put into this bin index; this g_r is the raw number of pairs at each dr bin.
                 end
             end
         end
     end
 end
-
+ 
 % Normalize RDF
+local_density = zeros(size(r));
 for k = 1:length(r)-1 % goes through each r-bin
     r_inner = r(k);
     r_outer = r(k+1);
     shell_area = pi * (r_outer^2 - r_inner^2);
-    g_r(k) = g_r(k) / (num_particles * num_timesteps * particle_density * shell_area); % g(k)/num_particles = average overall particles, 
+    local_density(k) = g_r(k) / shell_area; % Local density is the density of pairs at a certain dr for each timestep
+    g_r(k) = local_density(k) / ( num_particles * num_timesteps * density_particles_in_area); % g(k)/num_particles = average overall particles, 
 end
 
 % Plot RDF
