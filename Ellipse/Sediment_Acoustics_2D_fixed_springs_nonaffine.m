@@ -207,6 +207,8 @@ end
 
 %%%%% Post Processing %%%%%
 
+% Add the path to the "functions" directory
+addpath('../Functions')
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

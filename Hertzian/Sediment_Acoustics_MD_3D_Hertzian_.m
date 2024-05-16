@@ -228,6 +228,9 @@ for nt = 1:Nt
     az_old = az;
 end
 
+% Add the path to the "functions" directory
+addpath('../Functions')
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % X Direction Post Processing
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -286,7 +289,7 @@ time_vector = (1:Nt)*dt;
 index_oscillating_wall = left_wall_list;
 driving_amplitude=A;
 
-% Perform fft fitting
+% Perform fft density
 process_gm_fft_freq_density(time_vector, index_particles, index_oscillating_wall, driving_amplitude, position_particles, initial_distance_from_oscillation)
 
 figure_handle = 'z';
