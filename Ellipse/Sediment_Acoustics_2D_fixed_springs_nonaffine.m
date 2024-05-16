@@ -344,7 +344,7 @@ iskip = 1;
 list = [];
 b_start = 0;
 
-ellipse_stats = zeros(length(isort(1:iskip:end)),3);
+ellipse_stats = zeros(length(isort(1:iskip:end)), 4);
 nn_list = isort(1:iskip:nnmax);
 
 for nn_counter = 1:length(nn_list)
@@ -488,7 +488,7 @@ for nn_counter = 1:length(nn_list)
                 end
 
                 % Store the fitted ellipse parameters (semi-major axis, semi-minor axis, rotation angle) in the ellipse_stats matrix for the current particle.
-                ellipse_stats(nn_counter,:) = af;
+                ellipse_stats(nn_counter,:) = [af, x0(nn)];
             end
             % pause
             % fo = fitoptions('Method','NonlinearLeastSquares',...
@@ -535,6 +535,8 @@ if plotdebug
     histogram(abs(ellipse_stats_nonzero(:,3)),0:5:90);
     set(gca,'YScale','log')
 end
+
+driving_amplitude = A;
 
 % set(gca,'yscale','log')
 
